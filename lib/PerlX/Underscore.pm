@@ -1,6 +1,12 @@
 package PerlX::Underscore;
 #ABSTRACT: Common helper functions without having to import them
 
+=pod
+
+=encoding utf8
+
+=cut
+
 use strict;
 use warnings;
 no warnings 'once';
@@ -20,6 +26,25 @@ use Safe::Isa ();
     
     _::croak "$foo must do Some::Role" if not _::does($foo, 'Some::Role');
     
+
+=head1 DESCRIPTION
+
+This module contains various utility functions, and makes them accessible through the C<_> package.
+This allows the use of these utilities (a) without much per-usage overhead and (b) without namespace pollution.
+
+It contains functions from the following modules:
+
+=for :list
+* L<Scalar::Util>
+* L<List::Util>
+* L<List::MoreUtils>
+* L<Carp>
+* L<Safe::Isa>, which contains convenience functions for L<UNIVERSAL>
+
+Not all functions from those are available, and some have been renamed.
+
+=head1 
+
 =cut
 
 BEGIN {
@@ -38,6 +63,8 @@ BEGIN {
 
 =cut
 
+=head3 _::blessed $object
+
 =head3 _::class $object
 
 Return the class which C<$object> was blessed into.
@@ -46,7 +73,8 @@ This is a wrapper around C<Scalar::Util::blessed>.
 
 =cut
 
-*class = \&Scalar::Util::blessed;
+*class   = \&Scalar::Util::blessed;
+*blessed = \&Scalar::Util::blessed;
 
 =head3 _::ref_addr $ref
 
@@ -341,5 +369,3 @@ This is a wrapper around C<$Safe::Isa::_call_if_object>.
 *safecall = $Safe::Isa::_call_if_object;
 
 1;
-
-__END__

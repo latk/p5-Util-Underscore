@@ -163,6 +163,18 @@ wrapper for C<List::Util::pairmap>
 = _::shuffle @list
 wrapper for C<List::Util::shuffle>
 
+= _::natatime $size, @list
+wrapper for C<List::MoreUtils::natatime>
+
+= _::zip @list1, @list2, ...
+wrapper for C<List::MoreUtils::zip>
+
+= _::uniq @list
+wrapper for C<List::MoreUtils::uniq>
+
+= _::part { INDEX_FUNCTION } @list
+wrapper for C<List::MoreUtils::part>
+
 =end :list
 
 =cut
@@ -200,6 +212,14 @@ wrapper for C<List::Util::shuffle>
 *_::pairmap = \&List::Util::pairmap;
 
 *_::shuffle = \&List::Util::shuffle;
+
+*_::natatime = \&List::MoreUtils::natatime;
+
+*_::zip = \&List::MoreUtils::zip;
+
+*_::uniq = \&List::MoreUtils::uniq;
+
+*_::part = \&List::MoreUtils::part;
 
 =head2 Carp
 

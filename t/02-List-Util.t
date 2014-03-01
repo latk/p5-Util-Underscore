@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 22;
 
 use PerlX::Underscore;
 
@@ -34,6 +34,10 @@ my %lmu_aliases = qw/
     first_index first_index
     last        last_value
     last_index  last_index
+    natatime    natatime
+    zip         zip
+    uniq        uniq
+    part        part
 /;
 
 while (my ($k, $v) = each %lmu_aliases) {

@@ -22,6 +22,8 @@ It contains functions from the following modules:
 
 Not all functions from those are available, and some have been renamed.
 
+A trial release can be installed like `cpanm --dev PerlX::Underscore`.
+
 ## COPYRIGHT AND LICENSE
 
 This software is Copyright (c) 2014 by Lukas Atkinson.

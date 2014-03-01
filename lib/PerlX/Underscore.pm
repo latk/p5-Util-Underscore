@@ -14,11 +14,11 @@ use version ();
 
 our $VERSION = version::qv('v0.1.0');
 
-use Scalar::Util ();
-use List::Util ();
-use List::MoreUtils ();
-use Carp ();
-use Safe::Isa ();
+use Scalar::Util    1.36        ();
+use List::Util      1.35        ();
+use List::MoreUtils 0.07        ();
+use Carp                        ();
+use Safe::Isa       1.000000    ();
 
 =head1 SYNOPSIS
 
@@ -48,11 +48,21 @@ Not all functions from those are available, and some have been renamed.
 =cut
 
 BEGIN {
+    # check if a competing "_" exists
     if (keys %{_::}) {
-        die qq(The package "_" has already been defined);
+        Carp::confess qq(The package "_" has already been defined);
     }
-    # alias the package names
-    *_:: = *PerlX::Underscore::;
+}
+
+BEGIN {
+    # prevent other "_" packages from being loaded:
+    # Just setting the ${INC} entry would fail too silently,
+    # so we also rigged the "import" method.
+    
+    $INC{'_.pm'} = *_::import = sub {
+        Carp::confess qq(The "_" package is internal to PerlX::Underscore)
+                    . qq(and must not be imported directly.\n);
+    };
 }
 
 =head1 FUNCTION REFERENCE
@@ -73,8 +83,8 @@ This is a wrapper around C<Scalar::Util::blessed>.
 
 =cut
 
-*class   = \&Scalar::Util::blessed;
-*blessed = \&Scalar::Util::blessed;
+*_::class   = \&Scalar::Util::blessed;
+*_::blessed = \&Scalar::Util::blessed;
 
 =head3 _::ref_addr $ref
 
@@ -84,7 +94,7 @@ This is a wrapper around C<Scalar::Util::refaddr>.
 
 =cut
 
-*ref_addr = \&Scalar::Util::refaddr;
+*_::ref_addr = \&Scalar::Util::refaddr;
 
 =head3 _::ref_type $ref
 
@@ -94,7 +104,7 @@ This is a wrapper around C<Scalar::Util::reftype>.
 
 =cut
 
-*ref_type = \&Scalar::Util::reftype;
+*_::ref_type = \&Scalar::Util::reftype;
 
 =head3 _::ref_weaken $ref
 
@@ -104,7 +114,7 @@ This is a wrapper around C<Scalar::Util::weaken>.
 
 =cut
 
-*ref_weaken = \&Scalar::Util::weaken;
+*_::ref_weaken = \&Scalar::Util::weaken;
 
 =head3 _::ref_unweaken $ref
 
@@ -114,7 +124,7 @@ This is a wrapper around C<Scalar::Util::unweaken>.
 
 =cut
 
-*ref_unweaken = \&Scalar::Util::unweaken;
+*_::ref_unweaken = \&Scalar::Util::unweaken;
 
 =head3 _::ref_is_weak $ref
 
@@ -124,7 +134,7 @@ This is a wrapper around C<Scalar::Util::isweak>.
 
 =cut
 
-*ref_is_weak = \&Scalar::Util::isweak;
+*_::ref_is_weak = \&Scalar::Util::isweak;
 
 =head2 List::Util and List::MoreUtils
 
@@ -138,7 +148,7 @@ This is a wrapper around C<List::Util::reduce>.
 
 =cut
 
-*reduce = \&List::Util::reduce;
+*_::reduce = \&List::Util::reduce;
 
 =head3 _::any { PREDICATE } @list
 
@@ -148,7 +158,7 @@ This is a wrapper around C<List::Util::any>.
 
 =cut
 
-*any = \&List::Util::any;
+*_::any = \&List::Util::any;
 
 =head3 _::all { PREDICATE } @list
 
@@ -158,7 +168,7 @@ This is a wrapper around C<List::Util::all>.
 
 =cut
 
-*all = \&List::Util::all;
+*_::all = \&List::Util::all;
 
 =head3 _::none { PREDICATE } @list
 
@@ -168,7 +178,7 @@ This is a wrapper around C<List::Util::none>.
 
 =cut
 
-*none = \&List::Util::none;
+*_::none = \&List::Util::none;
 
 =head3 _::first { PREDICATE } @list
 
@@ -178,7 +188,7 @@ This is a wrapper around C<List::MoreUtils::first_value>.
 
 =cut
 
-*first = \&List::MoreUtils::first_value;
+*_::first = \&List::MoreUtils::first_value;
 
 =head3 _::first_index { PREDICATE } @list
 
@@ -188,7 +198,7 @@ This is a wrapper around C<List::MoreUtils::first_index>.
 
 =cut
 
-*first_index = \&List::MoreUtils::first_index;
+*_::first_index = \&List::MoreUtils::first_index;
 
 =head3 _::last { PREDICATE } @list
 
@@ -198,7 +208,7 @@ This is a wrapper around C<List::MoreUtils::last_value>.
 
 =cut
 
-*last = \&List::MoreUtils::last_value;
+*_::last = \&List::MoreUtils::last_value;
 
 =head3 _::last_index { PREDICATE } @list
 
@@ -208,7 +218,7 @@ This is a wrapper around C<List::MoreUtils::last_index>.
 
 =cut
 
-*last_index = \&List::MoreUtils::last_index;
+*_::last_index = \&List::MoreUtils::last_index;
 
 =head3 _::max     @list
 
@@ -220,8 +230,8 @@ These are wrappers around C<List::Util::max> and C<List::Util::maxstr>, respecti
 
 =cut
 
-*max     = \&List::Util::max;
-*max_str = \&List::Util::maxstr;
+*_::max     = \&List::Util::max;
+*_::max_str = \&List::Util::maxstr;
 
 =head3 _::min     @list
 
@@ -233,8 +243,8 @@ These are wrappers around C<List::Util::min> and C<List::Util::minstr>, respecti
 
 =cut
 
-*min     = \&List::Util::min;
-*min_str = \&List::Util::minstr;
+*_::min     = \&List::Util::min;
+*_::min_str = \&List::Util::minstr;
 
 =head3 _::sum 0, @list
 
@@ -244,7 +254,7 @@ This is a wrapper around C<List::Util::sum>.
 
 =cut
 
-*sum = \&List::Util::sum;
+*_::sum = \&List::Util::sum;
 
 =head3 _::product @list
 
@@ -254,7 +264,7 @@ This is a wrapper around C<List::Util::product>.
 
 =cut
 
-*product = \&List::Util::product;
+*_::product = \&List::Util::product;
 
 =head3 _::pairgrep { PREDICATE } @kvlist
 
@@ -264,7 +274,7 @@ This is a wrapper around C<List::Util::pairgrep>.
 
 =cut
 
-*pairgrep = \&List::Util::pairgrep;
+*_::pairgrep = \&List::Util::pairgrep;
 
 =head3 _::pairfirst { PREDICATE } @kvlist
 
@@ -274,7 +284,7 @@ This is a wrapper around C<List::Util::pairfirst>.
 
 =cut
 
-*pairfirst = \&List::Util::pairfirst;
+*_::pairfirst = \&List::Util::pairfirst;
 
 =head3 _::pairmap { BLOCK } @kvlist
 
@@ -284,7 +294,7 @@ This is a wrapper around C<List::Util::pairmap>.
 
 =cut
 
-*pairmap = \&List::Util::pairmap;
+*_::pairmap = \&List::Util::pairmap;
 
 =head3 _::shuffle @list
 
@@ -294,7 +304,7 @@ This is a wrapper around C<List::Util::shuffle>.
 
 =cut
 
-*shuffle = \&List::Util::shuffle;
+*_::shuffle = \&List::Util::shuffle;
 
 =head2 Carp
 
@@ -304,7 +314,7 @@ This is a wrapper around C<Carp::carp>.
 
 =cut
 
-*carp = \&Carp::carp;
+*_::carp = \&Carp::carp;
 
 =head3 _::cluck "Message"
 
@@ -312,7 +322,7 @@ This is a wrapper around C<Carp::cluck>.
 
 =cut
 
-*cluck = \&Carp::cluck;
+*_::cluck = \&Carp::cluck;
 
 =head3 _::croak "Message"
 
@@ -320,7 +330,7 @@ This is a wrapper around C<Carp::croak>.
 
 =cut
 
-*croak = \&Carp::croak;
+*_::croak = \&Carp::croak;
 
 =head3 _::confess "Message"
 
@@ -328,7 +338,7 @@ This is a wrapper around C<Carp::confess>.
 
 =cut
 
-*confess = \&Carp::confess;
+*_::confess = \&Carp::confess;
 
 =head2 UNIVERSAL
 
@@ -342,7 +352,7 @@ This is a wrapper around C<$Safe::Isa::_isa>.
 
 =cut
 
-*isa = $Safe::Isa::_isa;
+*_::isa = $Safe::Isa::_isa;
 
 =head3 _::does $object, 'Role'
 
@@ -350,7 +360,7 @@ This is a wrapper around C<$Safe::Isa::_DOES>.
 
 =cut
 
-*does = $Safe::Isa::_DOES;
+*_::does = $Safe::Isa::_DOES;
 
 =head3 _::can $object, 'method'
 
@@ -358,7 +368,7 @@ This is a wrapper around C<$Safe::Isa::_can>.
 
 =cut
 
-*can = $Safe::Isa::_can;
+*_::can = $Safe::Isa::_can;
 
 =head3 $maybe_object->_::safecall(method => @args)
 
@@ -366,6 +376,6 @@ This is a wrapper around C<$Safe::Isa::_call_if_object>.
 
 =cut
 
-*safecall = $Safe::Isa::_call_if_object;
+*_::safecall = $Safe::Isa::_call_if_object;
 
 1;

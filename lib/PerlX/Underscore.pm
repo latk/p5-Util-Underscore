@@ -71,272 +71,161 @@ BEGIN {
 
 =head2 Scalar::Util
 
-=cut
+=begin :list
 
-=head3 _::blessed $object
+= _::blessed $object
+= _::class $object
+wrapper for C<Scalar::Util::blessed>
 
-=head3 _::class $object
+= _::ref_addr $ref
+wrapper for C<Scalar::Util::refaddr>
 
-Return the class which C<$object> was blessed into.
+= _::ref_type $ref
+wrapper for C<Scalar::Util::reftype>
 
-This is a wrapper around C<Scalar::Util::blessed>.
+= _::ref_weaken $ref
+wrapper for C<Scalar::Util::weaken>
+
+= _::ref_unweaken $ref
+wrapper for C<Scalar::Util::unweaken>
+
+= _::ref_is_weak $ref
+wrapper for C<Scalar::Util::isweak>
+
+=end :list
 
 =cut
 
 *_::class   = \&Scalar::Util::blessed;
 *_::blessed = \&Scalar::Util::blessed;
 
-=head3 _::ref_addr $ref
-
-Returns the internal memory address of the reference.
-
-This is a wrapper around C<Scalar::Util::refaddr>.
-
-=cut
-
 *_::ref_addr = \&Scalar::Util::refaddr;
-
-=head3 _::ref_type $ref
-
-Returns the name of the basic Perl type which a reference points to.
-
-This is a wrapper around C<Scalar::Util::reftype>.
-
-=cut
 
 *_::ref_type = \&Scalar::Util::reftype;
 
-=head3 _::ref_weaken $ref
-
-Mutates the reference into a weak reference
-
-This is a wrapper around C<Scalar::Util::weaken>.
-
-=cut
-
 *_::ref_weaken = \&Scalar::Util::weaken;
 
-=head3 _::ref_unweaken $ref
-
-Mutates the reference into a strong reference
-
-This is a wrapper around C<Scalar::Util::unweaken>.
-
-=cut
-
 *_::ref_unweaken = \&Scalar::Util::unweaken;
-
-=head3 _::ref_is_weak $ref
-
-Checks whether a reference is weak or strong.
-
-This is a wrapper around C<Scalar::Util::isweak>.
-
-=cut
 
 *_::ref_is_weak = \&Scalar::Util::isweak;
 
 =head2 List::Util and List::MoreUtils
 
-=cut
+=begin :list
 
-=head3 _::reduce { BLOCK } @list
+= _::reduce { BLOCK } @list
+wrapper for C<List::Util::reduce>
 
-Reduces the list via the operation in the BLOCK.
+= _::any { PREDICATE } @list
+wrapper for C<List::Util::any>
 
-This is a wrapper around C<List::Util::reduce>.
+= _::all { PREDICATE } @list
+wrapper for C<List::Util::all>
+
+= _::none { PREDICATE } @list
+wrapper for C<List::Util::none>
+
+= _::first { PREDICATE } @list
+wrapper for C<List::MoreUtils::first_value>
+
+= _::first_index { PREDICATE } @list
+wrapper for C<List::MoreUtils::first_index>
+
+= _::last { PREDICATE } @list
+wrapper for C<List::MoreUtils::last_value>
+
+= _::last_index { PREDICATE } @list
+wrapper for C<List::MoreUtils::last_index>
+
+= _::max     @list
+= _::max_str @list
+wrappers for C<List::Util::max> and C<List::Util::maxstr>, respectively.
+
+= _::min     @list
+= _::min_str @list
+wrappers for C<List::Util::min> and C<List::Util::minstr>, respectively.
+
+= _::sum 0, @list
+wrapper for C<List::Util::sum>
+
+= _::product @list
+wrapper for C<List::Util::product>
+
+= _::pairgrep { PREDICATE } @kvlist
+wrapper for C<List::Util::pairgrep>
+
+= _::pairfirst { PREDICATE } @kvlist
+wrapper for C<List::Util::pairfirst>
+
+= _::pairmap { BLOCK } @kvlist
+wrapper for C<List::Util::pairmap>
+
+= _::shuffle @list
+wrapper for C<List::Util::shuffle>
+
+=end :list
 
 =cut
 
 *_::reduce = \&List::Util::reduce;
 
-=head3 _::any { PREDICATE } @list
-
-The predicate evaluates to true for at least one item in the C<@list>.
-
-This is a wrapper around C<List::Util::any>.
-
-=cut
-
 *_::any = \&List::Util::any;
-
-=head3 _::all { PREDICATE } @list
-
-The predicate evaluates to true for all items in the C<@list>.
-
-This is a wrapper around C<List::Util::all>.
-
-=cut
 
 *_::all = \&List::Util::all;
 
-=head3 _::none { PREDICATE } @list
-
-The predicate evaluates to true for no items in the C<@list>.
-
-This is a wrapper around C<List::Util::none>.
-
-=cut
-
 *_::none = \&List::Util::none;
-
-=head3 _::first { PREDICATE } @list
-
-Returns the first element in the list where the predicate is true.
-
-This is a wrapper around C<List::MoreUtils::first_value>.
-
-=cut
 
 *_::first = \&List::MoreUtils::first_value;
 
-=head3 _::first_index { PREDICATE } @list
-
-Returns the index of the first element in the list where the predicate is true.
-
-This is a wrapper around C<List::MoreUtils::first_index>.
-
-=cut
-
 *_::first_index = \&List::MoreUtils::first_index;
-
-=head3 _::last { PREDICATE } @list
-
-Returns the last element in the list where the predicate is true.
-
-This is a wrapper around C<List::MoreUtils::last_value>.
-
-=cut
 
 *_::last = \&List::MoreUtils::last_value;
 
-=head3 _::last_index { PREDICATE } @list
-
-Returns the index of the last element in the list where the predicate is true.
-
-This is a wrapper around C<List::MoreUtils::last_index>.
-
-=cut
-
 *_::last_index = \&List::MoreUtils::last_index;
-
-=head3 _::max     @list
-
-=head3 _::max_str @list
-
-Returns the numerically maximal element in the list. C<_::max_str> returns the maximal element according to string comparisions instead.
-
-These are wrappers around C<List::Util::max> and C<List::Util::maxstr>, respectively.
-
-=cut
 
 *_::max     = \&List::Util::max;
 *_::max_str = \&List::Util::maxstr;
 
-=head3 _::min     @list
-
-=head3 _::min_str @list
-
-Returns the numerically minimal element in the list. C<_::min_str> returns the minimal element according to string comparisions instead.
-
-These are wrappers around C<List::Util::min> and C<List::Util::minstr>, respectively.
-
-=cut
-
 *_::min     = \&List::Util::min;
 *_::min_str = \&List::Util::minstr;
 
-=head3 _::sum 0, @list
-
-Returns the sum of all items. Always specify the neutral element zero to avoid getting C<undef> when the list is empty – unless that is wanted, of course.
-
-This is a wrapper around C<List::Util::sum>.
-
-=cut
-
 *_::sum = \&List::Util::sum;
-
-=head3 _::product @list
-
-Returns the product of all items, and C<1> if the list is empty.
-
-This is a wrapper around C<List::Util::product>.
-
-=cut
 
 *_::product = \&List::Util::product;
 
-=head3 _::pairgrep { PREDICATE } @kvlist
-
-Like C<grep>, but on even-sized key-value lists.
-
-This is a wrapper around C<List::Util::pairgrep>.
-
-=cut
-
 *_::pairgrep = \&List::Util::pairgrep;
-
-=head3 _::pairfirst { PREDICATE } @kvlist
-
-Like C<_::first>, but on even-sized key-value lists.
-
-This is a wrapper around C<List::Util::pairfirst>.
-
-=cut
 
 *_::pairfirst = \&List::Util::pairfirst;
 
-=head3 _::pairmap { BLOCK } @kvlist
-
-Like C<map>, but on even-sized key-value lists.
-
-This is a wrapper around C<List::Util::pairmap>.
-
-=cut
-
 *_::pairmap = \&List::Util::pairmap;
-
-=head3 _::shuffle @list
-
-Randomly reorder the items in the list
-
-This is a wrapper around C<List::Util::shuffle>.
-
-=cut
 
 *_::shuffle = \&List::Util::shuffle;
 
 =head2 Carp
 
-=head3 _::carp "Message"
+=begin :list
 
-This is a wrapper around C<Carp::carp>.
+= _::carp "Message"
+wrapper for C<Carp::carp>
+
+= _::cluck "Message"
+wrapper for C<Carp::cluck>
+
+= _::croak "Message"
+wrapper for C<Carp::croak>
+
+= _::confess "Message"
+wrapper for C<Carp::confess>
+
+=end :list
 
 =cut
 
 *_::carp = \&Carp::carp;
 
-=head3 _::cluck "Message"
-
-This is a wrapper around C<Carp::cluck>.
-
-=cut
-
 *_::cluck = \&Carp::cluck;
 
-=head3 _::croak "Message"
-
-This is a wrapper around C<Carp::croak>.
-
-=cut
-
 *_::croak = \&Carp::croak;
-
-=head3 _::confess "Message"
-
-This is a wrapper around C<Carp::confess>.
-
-=cut
 
 *_::confess = \&Carp::confess;
 
@@ -344,37 +233,29 @@ This is a wrapper around C<Carp::confess>.
 
 ...and other goodies from C<Safe::Isa>
 
-=cut
+=begin :list
 
-=head3 _::isa $object, 'Class'
+= _::isa $object, 'Class'
+wrapper for C<$Safe::Isa::_isa>
 
-This is a wrapper around C<$Safe::Isa::_isa>.
+= _::can $object, 'method'
+wrapper for C<$Safe::Isa::_can>
+
+= _::does $object, 'Role'
+wrapper for C<$Safe::Isa::_DOES>
+
+= $maybe_object->_::safecall(method => @args)
+wrapper for C<$Safe::Isa::_call_if_object>
+
+=end :list 
 
 =cut
 
 *_::isa = $Safe::Isa::_isa;
 
-=head3 _::does $object, 'Role'
-
-This is a wrapper around C<$Safe::Isa::_DOES>.
-
-=cut
-
 *_::does = $Safe::Isa::_DOES;
 
-=head3 _::can $object, 'method'
-
-This is a wrapper around C<$Safe::Isa::_can>.
-
-=cut
-
 *_::can = $Safe::Isa::_can;
-
-=head3 $maybe_object->_::safecall(method => @args)
-
-This is a wrapper around C<$Safe::Isa::_call_if_object>.
-
-=cut
 
 *_::safecall = $Safe::Isa::_call_if_object;
 

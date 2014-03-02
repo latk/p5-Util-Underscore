@@ -19,8 +19,15 @@ It contains functions from the following modules:
  *  `List::MoreUtils`
  *  `Carp`
  *  `Safe::Isa`, which contains convenience functions for `UNIVERSAL`
+ *  `Try::Tiny`
 
 Not all functions from those are available, and some have been renamed.
+
+## INSTALLATION
+
+This is an ordinary CPAN module. E.g. install like
+
+    $ cpanm Util::Underscore
 
 ## COPYRIGHT AND LICENSE
 

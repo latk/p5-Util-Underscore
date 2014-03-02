@@ -1,17 +1,11 @@
 package Util::Underscore;
 #ABSTRACT: Common helper functions without having to import them
 
-=pod
-
-=encoding utf8
-
-=cut
-
 use strict;
 use warnings;
 no warnings 'once';
 
-use version 0.77 (); our $VERSION = version->declare('v0.1_1');
+use version 0.77 (); our $VERSION = version->declare('v1.0.0');
 
 use Scalar::Util    1.36        ();
 use List::Util      1.35        ();
@@ -19,6 +13,10 @@ use List::MoreUtils 0.07        ();
 use Carp                        ();
 use Safe::Isa       1.000000    ();
 use Try::Tiny                   ();
+
+=pod
+
+=encoding utf8
 
 =head1 SYNOPSIS
 
@@ -40,6 +38,7 @@ It contains functions from the following modules:
 * L<List::MoreUtils>
 * L<Carp>
 * L<Safe::Isa>, which contains convenience functions for L<UNIVERSAL>
+* L<Try::Tiny>
 
 Not all functions from those are available, and some have been renamed.
 
@@ -211,6 +210,11 @@ wrapper for C<List::MoreUtils::natatime>
 
 = C<@list = _::zip \@array1, \@array2, ...>
 wrapper for C<List::MoreUtils::zip>
+
+Unlike C<List::MoreUtils::zip>, this function directly takes I<array
+references>, and not array variables. It still uses the same implementation.
+This change makes it easier to work with anonymous arrayrefs, or other data that
+isn't already inside a named array variable.
 
 = C<@list = _::uniq @list>
 wrapper for C<List::MoreUtils::uniq>

@@ -70,23 +70,23 @@ BEGIN {
 
 =begin :list
 
-= _::blessed $object
-= _::class $object
+= C<_::blessed $object>
+= C<_::class $object>
 wrapper for C<Scalar::Util::blessed>
 
-= _::ref_addr $ref
+= C<_::ref_addr $ref>
 wrapper for C<Scalar::Util::refaddr>
 
-= _::ref_type $ref
+= C<_::ref_type $ref>
 wrapper for C<Scalar::Util::reftype>
 
-= _::ref_weaken $ref
+= C<_::ref_weaken $ref>
 wrapper for C<Scalar::Util::weaken>
 
-= _::ref_unweaken $ref
+= C<_::ref_unweaken $ref>
 wrapper for C<Scalar::Util::unweaken>
 
-= _::ref_is_weak $ref
+= C<_::ref_is_weak $ref>
 wrapper for C<Scalar::Util::isweak>
 
 =end :list
@@ -110,66 +110,66 @@ wrapper for C<Scalar::Util::isweak>
 
 =begin :list
 
-= _::reduce { BLOCK } @list
+= C<_::reduce { BLOCK } @list>
 wrapper for C<List::Util::reduce>
 
-= _::any { PREDICATE } @list
+= C<_::any { PREDICATE } @list>
 wrapper for C<List::Util::any>
 
-= _::all { PREDICATE } @list
+= C<_::all { PREDICATE } @list>
 wrapper for C<List::Util::all>
 
-= _::none { PREDICATE } @list
+= C<_::none { PREDICATE } @list>
 wrapper for C<List::Util::none>
 
-= _::first { PREDICATE } @list
+= C<_::first { PREDICATE } @list>
 wrapper for C<List::MoreUtils::first_value>
 
-= _::first_index { PREDICATE } @list
+= C<_::first_index { PREDICATE } @list>
 wrapper for C<List::MoreUtils::first_index>
 
-= _::last { PREDICATE } @list
+= C<_::last { PREDICATE } @list>
 wrapper for C<List::MoreUtils::last_value>
 
-= _::last_index { PREDICATE } @list
+= C<_::last_index { PREDICATE } @list>
 wrapper for C<List::MoreUtils::last_index>
 
-= _::max     @list
-= _::max_str @list
+= C<_::max     @list>
+= C<_::max_str @list>
 wrappers for C<List::Util::max> and C<List::Util::maxstr>, respectively.
 
-= _::min     @list
-= _::min_str @list
+= C<_::min     @list>
+= C<_::min_str @list>
 wrappers for C<List::Util::min> and C<List::Util::minstr>, respectively.
 
-= _::sum 0, @list
+= C<_::sum 0, @list>
 wrapper for C<List::Util::sum>
 
-= _::product @list
+= C<_::product @list>
 wrapper for C<List::Util::product>
 
-= _::pairgrep { PREDICATE } @kvlist
+= C<_::pairgrep { PREDICATE } @kvlist>
 wrapper for C<List::Util::pairgrep>
 
-= _::pairfirst { PREDICATE } @kvlist
+= C<_::pairfirst { PREDICATE } @kvlist>
 wrapper for C<List::Util::pairfirst>
 
-= _::pairmap { BLOCK } @kvlist
+= C<_::pairmap { BLOCK } @kvlist>
 wrapper for C<List::Util::pairmap>
 
-= _::shuffle @list
+= C<_::shuffle @list>
 wrapper for C<List::Util::shuffle>
 
-= _::natatime $size, @list
+= C<_::natatime $size, @list>
 wrapper for C<List::MoreUtils::natatime>
 
-= _::zip @list1, @list2, ...
+= C<_::zip @list1, @list2, ...>
 wrapper for C<List::MoreUtils::zip>
 
-= _::uniq @list
+= C<_::uniq @list>
 wrapper for C<List::MoreUtils::uniq>
 
-= _::part { INDEX_FUNCTION } @list
+= C<_::part { INDEX_FUNCTION } @list>
 wrapper for C<List::MoreUtils::part>
 
 =end :list
@@ -222,16 +222,16 @@ wrapper for C<List::MoreUtils::part>
 
 =begin :list
 
-= _::carp "Message"
+= C<_::carp "Message">
 wrapper for C<Carp::carp>
 
-= _::cluck "Message"
+= C<_::cluck "Message">
 wrapper for C<Carp::cluck>
 
-= _::croak "Message"
+= C<_::croak "Message">
 wrapper for C<Carp::croak>
 
-= _::confess "Message"
+= C<_::confess "Message">
 wrapper for C<Carp::confess>
 
 =end :list
@@ -252,16 +252,16 @@ wrapper for C<Carp::confess>
 
 =begin :list
 
-= _::isa $object, 'Class'
+= C<_::isa $object, 'Class'>
 wrapper for C<$Safe::Isa::_isa>
 
-= _::can $object, 'method'
+= C<_::can $object, 'method'>
 wrapper for C<$Safe::Isa::_can>
 
-= _::does $object, 'Role'
+= C<_::does $object, 'Role'>
 wrapper for C<$Safe::Isa::_DOES>
 
-= $maybe_object->_::safecall(method => @args)
+= C<< $maybe_object->_::safecall(method => @args) >>
 wrapper for C<$Safe::Isa::_call_if_object>
 
 =end :list 

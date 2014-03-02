@@ -18,6 +18,7 @@ use List::Util      1.35        ();
 use List::MoreUtils 0.07        ();
 use Carp                        ();
 use Safe::Isa       1.000000    ();
+use Try::Tiny                   ();
 
 =head1 SYNOPSIS
 
@@ -327,5 +328,22 @@ wrapper for C<$Safe::Isa::_call_if_object>
 *_::can = $Safe::Isa::_can;
 
 *_::safecall = $Safe::Isa::_call_if_object;
+
+=head2 Try::Tiny
+
+The following keywords are available:
+
+=for :list
+* C<_::try>
+* C<_::catch>
+* C<_::finally>
+
+They are all direct aliases for their namesakes in C<Try::Tiny>.
+
+=cut
+
+*_::try     = \&Try::Tiny::try;
+*_::catch   = \&Try::Tiny::catch;
+*_::finally = \&Try::Tiny::finally;
 
 1;

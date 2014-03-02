@@ -12,4 +12,4 @@ use Test::Exception;
     sub foo;
 }
 
-throws_ok { require PerlX::Underscore } qr/\AThe package "_" has already been defined/;
+throws_ok { require Util::Underscore } qr/\AThe package "_" has already been defined/;

@@ -1,4 +1,4 @@
-package PerlX::Underscore;
+package Util::Underscore;
 #ABSTRACT: Common helper functions without having to import them
 
 =pod
@@ -21,7 +21,7 @@ use Safe::Isa       1.000000    ();
 
 =head1 SYNOPSIS
 
-    use PerlX::Underscore;
+    use Util::Underscore;
     
     _::croak "$foo must do Some::Role" if not _::does($foo, 'Some::Role');
     
@@ -57,7 +57,7 @@ BEGIN {
     # so we also rigged the "import" method.
     
     $INC{'_.pm'} = *_::import = sub {
-        Carp::confess qq(The "_" package is internal to PerlX::Underscore)
+        Carp::confess qq(The "_" package is internal to Util::Underscore)
                     . qq(and must not be imported directly.\n);
     };
 }

@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More tests => 22;
 
-use PerlX::Underscore;
+use Util::Underscore;
 
 my %lu_aliases = qw/
     reduce      reduce

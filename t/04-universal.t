@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More tests => 4;
 
-use PerlX::Underscore;
+use Util::Underscore;
 
 my %mapping = (
     isa     => "_isa",

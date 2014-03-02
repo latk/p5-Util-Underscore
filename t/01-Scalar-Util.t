@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More tests => 6;
 
-use PerlX::Underscore;
+use Util::Underscore;
 
 my %aliases = qw/
     class           blessed

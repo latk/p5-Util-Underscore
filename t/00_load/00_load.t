@@ -5,4 +5,4 @@ use warnings;
 
 use Test::More tests => 1;
 
-use_ok 'PerlX::Underscore';
+use_ok 'Util::Underscore';

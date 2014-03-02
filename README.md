@@ -1,10 +1,10 @@
-# PerlX::Underscore
+# Util::Underscore
 
 Common helper functions without having to import them
 
 ## SYNOPSIS
 
-    use PerlX::Underscore;
+    use Util::Underscore;
 
     _::croak "$foo must do Some::Role" if not _::does($foo, 'Some::Role');
 
@@ -21,8 +21,6 @@ It contains functions from the following modules:
  *  `Safe::Isa`, which contains convenience functions for `UNIVERSAL`
 
 Not all functions from those are available, and some have been renamed.
-
-A trial release can be installed like `cpanm --dev PerlX::Underscore`.
 
 ## COPYRIGHT AND LICENSE
 

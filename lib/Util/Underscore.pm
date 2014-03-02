@@ -89,6 +89,31 @@ wrapper for C<Scalar::Util::unweaken>
 = C<$bool = _::ref_is_weak $ref>
 wrapper for C<Scalar::Util::isweak>
 
+= C<$scalar = _::new_dual $num, $str>
+wrapper for C<Scalar::Util::dualvar>
+
+= C<$bool = _::is_dual $scalar>
+wrapper for C<Scalar::Util::isdual>
+
+= C<$bool = _::is_vstring $scalar>
+wrapper for C<Scalar::Util::isvstring>
+
+= C<$bool = _::is_numeric $scalar>
+wrapper for C<Scalar::Util::looks_like_number>
+
+= C<$fh = _::is_open $fh>
+wrapper for C<Scalar::Util::openhandle>
+
+= C<$bool = _::is_readonly $scalar>
+wrapper for C<Scalar::Util::readonly>
+
+= C<_::prototype \&code>
+= C<_::prototype \&code, $new_proto>
+gets or sets the prototype, wrapping either C<CORE::prototype> or C<Scalar::Util::set_prototype>
+
+= C<$bool = _::is_tainted $scalar>
+wrapper for C<Scalar::Util::tainted>
+
 =end :list
 
 =cut
@@ -105,6 +130,26 @@ wrapper for C<Scalar::Util::isweak>
 *_::ref_unweaken = \&Scalar::Util::unweaken;
 
 *_::ref_is_weak = \&Scalar::Util::isweak;
+
+*_::new_dual = \&Scalar::Util::dualvar;
+
+*_::is_dual = \&Scalar::Util::isdual;
+
+*_::is_vstring = \&Scalar::Util::isvstring;
+
+*_::is_numeric = \&Scalar::Util::looks_like_number;
+
+*_::is_open = \&Scalar::Util::openhandle;
+
+*_::is_readonly = \&Scalar::Util::readonly;
+
+sub _::prototype (&;$) {    ## no critic ProhibitSubroutinePrototypes
+    goto &Scalar::Util::set_prototype if @_ == 2;
+    goto &CORE::prototype if @_ == 1;
+    Carp::confess '_::prototype(&;$) takes exactly one or two arguments'
+}
+
+*_::is_tainted = \&Scalar::Util::tainted;
 
 =head2 List::Util and List::MoreUtils
 

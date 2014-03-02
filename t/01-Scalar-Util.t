@@ -30,8 +30,8 @@ while (my ($k, $v) = each %aliases) {
 
 # Test _::prototype
 
-sub foo { ... };
-my $foo = sub { ... };
+sub foo { die "unimplemented" };
+my $foo = sub { die "unimplemented" };
 
 ok +(not defined _::prototype \&foo), 'sub prototype empty';
 ok +(not defined _::prototype  $foo), 'coderef prototype empty';

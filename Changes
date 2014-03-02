@@ -1,0 +1,5 @@
+v1.0.1
+    * fixed bugs that prevented installation on older perls
+
+v1.0.0
+    initial release

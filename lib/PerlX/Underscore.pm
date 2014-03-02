@@ -10,9 +10,8 @@ package PerlX::Underscore;
 use strict;
 use warnings;
 no warnings 'once';
-use version ();
 
-our $VERSION = version::qv('v0.1.0');
+use version 0.77 (); our $VERSION = version->declare('v0.1_1');
 
 use Scalar::Util    1.36        ();
 use List::Util      1.35        ();
@@ -42,8 +41,6 @@ It contains functions from the following modules:
 * L<Safe::Isa>, which contains convenience functions for L<UNIVERSAL>
 
 Not all functions from those are available, and some have been renamed.
-
-=head1 
 
 =cut
 

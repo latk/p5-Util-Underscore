@@ -208,7 +208,7 @@ wrapper for C<List::Util::shuffle>
 = C<$iter = _::natatime $size, @list>
 wrapper for C<List::MoreUtils::natatime>
 
-= C<@list = _::zip @array1, @array2, ...>
+= C<@list = _::zip \@array1, \@array2, ...>
 wrapper for C<List::MoreUtils::zip>
 
 = C<@list = _::uniq @list>
@@ -216,6 +216,9 @@ wrapper for C<List::MoreUtils::uniq>
 
 = C<@list = _::part { INDEX_FUNCTION } @list>
 wrapper for C<List::MoreUtils::part>
+
+= C<$iter = _::each_array \@array1, \@array2, ...>
+wrapper for C<List::MoreUtils::each_arrayref>
 
 =end :list
 
@@ -257,11 +260,15 @@ wrapper for C<List::MoreUtils::part>
 
 *_::natatime = \&List::MoreUtils::natatime;
 
-*_::zip = \&List::MoreUtils::zip;
+sub _::zip {
+    goto &List::MoreUtils::zip;  # adios, prototypes!
+}
 
 *_::uniq = \&List::MoreUtils::uniq;
 
 *_::part = \&List::MoreUtils::part;
+
+*_::each_array= \&List::MoreUtils::each_arrayref;
 
 =head2 Carp
 

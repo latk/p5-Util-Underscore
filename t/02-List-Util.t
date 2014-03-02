@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 23;
 
 use Util::Underscore;
 
@@ -35,12 +35,18 @@ my %lmu_aliases = qw/
     last        last_value
     last_index  last_index
     natatime    natatime
-    zip         zip
     uniq        uniq
     part        part
+    each_array  each_arrayref
 /;
 
 while (my ($k, $v) = each %lmu_aliases) {
     no strict 'refs';
     ok \&{"_::$k"} == \&{"List::MoreUtils::$v"}, "_::$k == List::MoreUtils::$v";
 }
+
+# Special test for "zip":
+
+my @xs = qw/a b c d/;
+my @ys = qw/1 2 3/;
+is_deeply [_::zip \@xs, \@ys], [a => 1, b => 2, c => 3, d => undef], '_::zip sanity test';

@@ -107,7 +107,7 @@ wrapper for C<Scalar::Util::openhandle>
 = C<$bool = _::is_readonly $scalar>
 wrapper for C<Scalar::Util::readonly>
 
-= C<_::prototype \&code>
+= C<$str = _::prototype \&code>
 = C<_::prototype \&code, $new_proto>
 gets or sets the prototype, wrapping either C<CORE::prototype> or C<Scalar::Util::set_prototype>
 
@@ -143,10 +143,17 @@ wrapper for C<Scalar::Util::tainted>
 
 *_::is_readonly = \&Scalar::Util::readonly;
 
-sub _::prototype (&;$) {    ## no critic ProhibitSubroutinePrototypes
-    goto &Scalar::Util::set_prototype if @_ == 2;
-    goto &CORE::prototype if @_ == 1;
-    Carp::confess '_::prototype(&;$) takes exactly one or two arguments'
+sub _::prototype ($;$) {    ## no critic ProhibitSubroutinePrototypes
+    if (@_ == 2) {
+        goto &Scalar::Util::set_prototype if @_ == 2;
+    }
+    if (@_ == 1) {
+        my ($coderef) = @_;
+        return prototype $coderef;
+    }
+    else {
+        Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
+    }
 }
 
 *_::is_tainted = \&Scalar::Util::tainted;

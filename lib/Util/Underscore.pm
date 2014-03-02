@@ -5,7 +5,7 @@ use strict;
 use warnings;
 no warnings 'once';
 
-use version 0.77 (); our $VERSION = version->declare('v1.0.0');
+use version 0.77 (); our $VERSION = version->declare('v1.0.1');
 
 use Scalar::Util    1.36        ();
 use List::Util      1.35        ();

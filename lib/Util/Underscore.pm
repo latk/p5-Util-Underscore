@@ -14,6 +14,7 @@ use Carp                        ();
 use Safe::Isa       1.000000    ();
 use Try::Tiny                   ();
 use Data::Util      0.40        ();
+use Package::Stash              ();
 
 =pod
 
@@ -387,5 +388,16 @@ $assign_aliases->('Try::Tiny' => qw{
     catch   catch
     finally finally
 });
+
+=head2 Package::Stash
+
+The C<_::package $str> function will return a new C<Package::Stash> instance.
+
+=cut
+
+sub _::package($) { ## no critic ProhibitSubroutinePrototypes
+    my ($pkg) = @_;
+    return Package::Stash->new($pkg);
+}
 
 1;

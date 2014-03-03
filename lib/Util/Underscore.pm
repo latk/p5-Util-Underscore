@@ -13,6 +13,7 @@ use List::MoreUtils 0.07        ();
 use Carp                        ();
 use Safe::Isa       1.000000    ();
 use Try::Tiny                   ();
+use Data::Util      0.40        ();
 
 =pod
 
@@ -34,6 +35,7 @@ It contains functions from the following modules:
 
 =for :list
 * L<Scalar::Util>
+* L<Data::Util>
 * L<List::Util>
 * L<List::MoreUtils>
 * L<Carp>
@@ -157,6 +159,54 @@ sub _::prototype ($;$) {    ## no critic ProhibitSubroutinePrototypes
 }
 
 *_::is_tainted = \&Scalar::Util::tainted;
+
+=head2 Data::Util
+
+=begin :list
+
+= C<$bool = _::is_scalar_ref $scalar>
+wrapper for C<Data::Util::is_scalar_ref>
+
+= C<$bool = _::is_array_ref $scalar>
+wrapper for C<Data::Util::is_array_ref>
+
+= C<$bool = _::is_hash_ref $scalar>
+wrapper for C<Data::Util::is_hash_ref>
+
+= C<$bool = _::is_code_ref $scalar>
+wrapper for C<Data::Util::is_code_ref>
+
+= C<$bool = _::is_glob_ref $scalar>
+wrapper for C<Data::Util::is_glob_ref>
+
+= C<$bool = _::is_regex $scalar>
+wrapper for C<Data::Util::is_rx>
+
+= C<$bool = _::is_plain $scalar>
+wrapper for C<Data::Util::is_value>
+
+= C<$bool = _::is_int $scalar>
+wrapper for C<Data::Util::is_integer>
+
+=end :list
+
+=cut
+
+*_::is_scalar_ref = \&Data::Util::is_scalar_ref;
+
+*_::is_array_ref  = \&Data::Util::is_array_ref;
+
+*_::is_hash_ref   = \&Data::Util::is_hash_ref;
+
+*_::is_code_ref   = \&Data::Util::is_code_ref;
+
+*_::is_glob_ref   = \&Data::Util::is_glob_ref;
+
+*_::is_regex      = \&Data::Util::is_rx;
+
+*_::is_plain      = \&Data::Util::is_value;
+
+*_::is_int        = \&Data::Util::is_integer;
 
 =head2 List::Util and List::MoreUtils
 

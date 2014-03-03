@@ -64,6 +64,15 @@ BEGIN {
     };
 }
 
+my $assign_aliases = sub {
+    my ($pkg, %aliases) = @_;
+    no strict 'refs';  ## no critic ProhibitNoStrict
+    while (my ($this, $that) = each %aliases) {
+        *{'_::' . $this} =  *{$pkg . '::' . $that}{CODE}
+                         // die "Unknown subroutine ${pkg}::${that}";
+    }
+};
+
 =head1 FUNCTION REFERENCE
 
 =cut
@@ -120,30 +129,22 @@ wrapper for C<Scalar::Util::tainted>
 
 =cut
 
-*_::class   = \&Scalar::Util::blessed;
-*_::blessed = \&Scalar::Util::blessed;
-
-*_::ref_addr = \&Scalar::Util::refaddr;
-
-*_::ref_type = \&Scalar::Util::reftype;
-
-*_::ref_weaken = \&Scalar::Util::weaken;
-
-*_::ref_unweaken = \&Scalar::Util::unweaken;
-
-*_::ref_is_weak = \&Scalar::Util::isweak;
-
-*_::new_dual = \&Scalar::Util::dualvar;
-
-*_::is_dual = \&Scalar::Util::isdual;
-
-*_::is_vstring = \&Scalar::Util::isvstring;
-
-*_::is_numeric = \&Scalar::Util::looks_like_number;
-
-*_::is_open = \&Scalar::Util::openhandle;
-
-*_::is_readonly = \&Scalar::Util::readonly;
+$assign_aliases->('Scalar::Util' => qw{
+    class           blessed
+    blessed         blessed
+    ref_addr        refaddr
+    ref_type        reftype
+    ref_weaken      weaken
+    ref_unweaken    unweaken
+    ref_is_weak     isweak
+    new_dual        dualvar
+    is_dual         isdual
+    is_vstring      isvstring
+    is_numeric      looks_like_number
+    is_open         openhandle
+    is_readonly     readonly
+    is_tainted      tainted
+});
 
 sub _::prototype ($;$) {    ## no critic ProhibitSubroutinePrototypes
     if (@_ == 2) {
@@ -157,8 +158,6 @@ sub _::prototype ($;$) {    ## no critic ProhibitSubroutinePrototypes
         Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
     }
 }
-
-*_::is_tainted = \&Scalar::Util::tainted;
 
 =head2 Data::Util
 
@@ -192,21 +191,16 @@ wrapper for C<Data::Util::is_integer>
 
 =cut
 
-*_::is_scalar_ref = \&Data::Util::is_scalar_ref;
-
-*_::is_array_ref  = \&Data::Util::is_array_ref;
-
-*_::is_hash_ref   = \&Data::Util::is_hash_ref;
-
-*_::is_code_ref   = \&Data::Util::is_code_ref;
-
-*_::is_glob_ref   = \&Data::Util::is_glob_ref;
-
-*_::is_regex      = \&Data::Util::is_rx;
-
-*_::is_plain      = \&Data::Util::is_value;
-
-*_::is_int        = \&Data::Util::is_integer;
+$assign_aliases->('Data::Util' => qw{
+    is_scalar_ref   is_scalar_ref
+    is_array_ref    is_array_ref
+    is_hash_ref     is_hash_ref
+    is_code_ref     is_code_ref
+    is_glob_ref     is_glob_ref
+    is_regex        is_rx
+    is_plain        is_value
+    is_int          is_integer
+});
 
 =head2 List::Util and List::MoreUtils
 
@@ -286,51 +280,37 @@ wrapper for C<List::MoreUtils::each_arrayref>
 
 =cut
 
-*_::reduce = \&List::Util::reduce;
+$assign_aliases->('List::Util' => qw{
+    reduce      reduce
+    any         any
+    all         all
+    none        none
+    max         max
+    max_str     maxstr
+    min         min
+    min_str     minstr
+    sum         sum
+    product     product
+    pairgrep    pairgrep
+    pairfirst   pairfirst
+    pairmap     pairmap
+    shuffle     shuffle
+});
 
-*_::any = \&List::Util::any;
-
-*_::all = \&List::Util::all;
-
-*_::none = \&List::Util::none;
-
-*_::first = \&List::MoreUtils::first_value;
-
-*_::first_index = \&List::MoreUtils::first_index;
-
-*_::last = \&List::MoreUtils::last_value;
-
-*_::last_index = \&List::MoreUtils::last_index;
-
-*_::max     = \&List::Util::max;
-*_::max_str = \&List::Util::maxstr;
-
-*_::min     = \&List::Util::min;
-*_::min_str = \&List::Util::minstr;
-
-*_::sum = \&List::Util::sum;
-
-*_::product = \&List::Util::product;
-
-*_::pairgrep = \&List::Util::pairgrep;
-
-*_::pairfirst = \&List::Util::pairfirst;
-
-*_::pairmap = \&List::Util::pairmap;
-
-*_::shuffle = \&List::Util::shuffle;
-
-*_::natatime = \&List::MoreUtils::natatime;
+$assign_aliases->('List::MoreUtils' => qw{
+    first       first_value
+    first_index first_index
+    last        last_value
+    last_index  last_index
+    natatime    natatime
+    uniq        uniq
+    part        part
+    each_array  each_arrayref
+});
 
 sub _::zip {
     goto &List::MoreUtils::zip;  # adios, prototypes!
 }
-
-*_::uniq = \&List::MoreUtils::uniq;
-
-*_::part = \&List::MoreUtils::part;
-
-*_::each_array= \&List::MoreUtils::each_arrayref;
 
 =head2 Carp
 
@@ -352,13 +332,12 @@ wrapper for C<Carp::confess>
 
 =cut
 
-*_::carp = \&Carp::carp;
-
-*_::cluck = \&Carp::cluck;
-
-*_::croak = \&Carp::croak;
-
-*_::confess = \&Carp::confess;
+$assign_aliases->('Carp' => qw{
+    carp    carp
+    cluck   cluck
+    croak   croak
+    confess confess
+});
 
 =head2 UNIVERSAL
 
@@ -403,8 +382,10 @@ They are all direct aliases for their namesakes in C<Try::Tiny>.
 
 =cut
 
-*_::try     = \&Try::Tiny::try;
-*_::catch   = \&Try::Tiny::catch;
-*_::finally = \&Try::Tiny::finally;
+$assign_aliases->('Try::Tiny' => qw{
+    try     try
+    catch   catch
+    finally finally
+});
 
 1;

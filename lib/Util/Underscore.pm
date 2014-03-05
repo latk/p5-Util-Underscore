@@ -15,6 +15,7 @@ use Safe::Isa       1.000000    ();
 use Try::Tiny                   ();
 use Data::Util      0.40        ();
 use Package::Stash              ();
+use Data::Dump                  ();
 
 =pod
 
@@ -426,5 +427,29 @@ sub _::package($) { ## no critic ProhibitSubroutinePrototypes
     my ($pkg) = @_;
     return Package::Stash->new($pkg);
 }
+
+=head2 Data::Dump
+
+C<Data::Dump> is an alternative to C<Data::Dumper>.
+The main difference is the output format: C<Data::Dump> output tends to be easier to read.
+
+=begin :list
+
+= C<$str = _::pp @values>
+wrapper for C<Data::Dump::pp>
+
+= C<_::dd @values>
+wrapper for C<Data::Dump::dd>.
+
+= C<$str = _::quote $str>
+wrapper for C<Data::Dump::quote>.
+
+=cut
+
+$assign_aliases->('Data::Dump' => qw{
+    pp      pp      /
+    dd      dd      /
+    quote   quote   _
+});
 
 1;

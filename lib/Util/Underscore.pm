@@ -65,12 +65,31 @@ BEGIN {
     };
 }
 
-my $assign_aliases = sub {
+my $assign_aliases_simple = sub {
     my ($pkg, %aliases) = @_;
     no strict 'refs';  ## no critic ProhibitNoStrict
     while (my ($this, $that) = each %aliases) {
         *{'_::' . $this} =  *{$pkg . '::' . $that}{CODE}
                          // die "Unknown subroutine ${pkg}::${that}";
+    }
+};
+
+my $assign_aliases = sub {
+    my ($pkg, @aliases) = @_;
+    die "aliases have wrong format" if not @aliases % 3 == 0;
+    no strict 'refs';  ## no critic ProhibitNoStrict
+    while (my ($copy, $orig, $proto) = splice @aliases, 0, 3) {
+        my $orig_cv = *{"${pkg}::${orig}"}{CODE}
+                    // die "Unknown subroutine ${pkg}::${orig}";
+        my $copy_cv;
+        if ($proto eq '/') {
+             $copy_cv = $orig_cv;
+        }
+        else {
+            $copy_cv = sub { goto &$orig_cv };
+            Scalar::Util::set_prototype \&$copy_cv, $proto;
+        }
+        *{'_::' . $copy} = $copy_cv;
     }
 };
 
@@ -130,7 +149,7 @@ wrapper for C<Scalar::Util::tainted>
 
 =cut
 
-$assign_aliases->('Scalar::Util' => qw{
+$assign_aliases_simple->('Scalar::Util' => qw{
     class           blessed
     blessed         blessed
     ref_addr        refaddr
@@ -193,14 +212,14 @@ wrapper for C<Data::Util::is_integer>
 =cut
 
 $assign_aliases->('Data::Util' => qw{
-    is_scalar_ref   is_scalar_ref
-    is_array_ref    is_array_ref
-    is_hash_ref     is_hash_ref
-    is_code_ref     is_code_ref
-    is_glob_ref     is_glob_ref
-    is_regex        is_rx
-    is_plain        is_value
-    is_int          is_integer
+    is_scalar_ref   is_scalar_ref   _
+    is_array_ref    is_array_ref    _
+    is_hash_ref     is_hash_ref     _
+    is_code_ref     is_code_ref     _
+    is_glob_ref     is_glob_ref     _
+    is_regex        is_rx           _
+    is_plain        is_value        _
+    is_int          is_integer      _
 });
 
 =head2 List::Util and List::MoreUtils
@@ -281,7 +300,7 @@ wrapper for C<List::MoreUtils::each_arrayref>
 
 =cut
 
-$assign_aliases->('List::Util' => qw{
+$assign_aliases_simple->('List::Util' => qw{
     reduce      reduce
     any         any
     all         all
@@ -298,7 +317,7 @@ $assign_aliases->('List::Util' => qw{
     shuffle     shuffle
 });
 
-$assign_aliases->('List::MoreUtils' => qw{
+$assign_aliases_simple->('List::MoreUtils' => qw{
     first       first_value
     first_index first_index
     last        last_value
@@ -333,7 +352,7 @@ wrapper for C<Carp::confess>
 
 =cut
 
-$assign_aliases->('Carp' => qw{
+$assign_aliases_simple->('Carp' => qw{
     carp    carp
     cluck   cluck
     croak   croak
@@ -362,13 +381,21 @@ wrapper for C<$Safe::Isa::_call_if_object>
 
 =cut
 
-*_::isa = $Safe::Isa::_isa;
+sub _::isa($$) {  ## no critic ProhibitSubroutinePrototypes
+    goto &$Safe::Isa::_isa;
+}
 
-*_::does = $Safe::Isa::_DOES;
+sub _::does($$) {  ## no critic ProhibitSubroutinePrototypes
+    goto &$Safe::Isa::_DOES;
+}
 
-*_::can = $Safe::Isa::_can;
+sub _::can($$) {  ## no critic ProhibitSubroutinePrototypes
+    goto &$Safe::Isa::_can;
+}
 
-*_::safecall = $Safe::Isa::_call_if_object;
+sub _::safecall($$@) {  ## no critic ProhibitSubroutinePrototypes
+    goto &$Safe::Isa::_call_if_object;
+}
 
 =head2 Try::Tiny
 
@@ -383,7 +410,7 @@ They are all direct aliases for their namesakes in C<Try::Tiny>.
 
 =cut
 
-$assign_aliases->('Try::Tiny' => qw{
+$assign_aliases_simple->('Try::Tiny' => qw{
     try     try
     catch   catch
     finally finally

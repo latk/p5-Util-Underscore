@@ -3,18 +3,66 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 10;
 
 use Util::Underscore;
 
-my %mapping = (
-    isa     => "_isa",
-    does    => "_DOES",
-    can     => "_can",
-    safecall=> "_call_if_object",
+{
+    package Local::Parent;
+        sub meth { @_ == 3 }
+        sub marker {}
+    package Local::Child;
+        push @Local::Child::ISA, 'Local::Parent';
+    package Local::Mocker;
+        sub meth { @_ == 3 }
+        sub DOES {
+            my ($self, $what) = @_;
+            return 1 if $what eq 'Local::Parent';
+            goto &SUPER::DOES;
+        }
+    package Local::Unrelated;
+        sub meth { @_ == 3 }
+}
+
+my %functions = (
+    isa     => sub { _::isa      $_, 'Local::Parent'},
+    does    => sub { _::does     $_, 'Local::Parent'},
+    can     => sub { _::can      $_, 'marker',      },
+    safecall=> sub { _::safecall $_, meth => 1, 2   },
 );
 
-while (my ($k, $v) = each %mapping) {
-    no strict 'refs';
-    ok \&{"_::$k"} == ${"Safe::Isa::$v"}, "\\&_::$k == \$Safe::Isa::$v";
+sub value_matrix_ok {
+    my ($names, $objects, %results) = @_;
+    for my $i (0 .. $#$names) {
+        subtest $names->[$i] => sub {
+            plan tests => scalar keys %results;
+            while (my ($fn, $expected) = each %results) {
+                local $_ = $objects->[$i];
+                my ($result) = $functions{$fn}->();
+                $result = $result ? 1 : 0;
+                is $result, $expected->[$i], $fn;
+            }
+        };
+    }
 }
+
+my $parent    = bless [] => 'Local::Parent';
+my $child     = bless [] => 'Local::Child';
+my $mocker    = bless [] => 'Local::Mocker';
+my $unrelated = bless [] => 'Local::Unrelated';
+my $package = 'Local::Parent';
+
+value_matrix_ok
+            [qw[  parent      child       mocker      unrelated   package ]],
+               [ $parent,    $child,     $mocker,    $unrelated, $package ],
+isa         => [  1,          1,          0,          0,          0,      ],
+does        => [  1,          1,          1,          0,          0,      ],
+can         => [  1,          1,          0,          0,          0,      ],
+safecall    => [  1,          1,          1,          1,          0,      ];
+value_matrix_ok
+            [qw[  string      number      undef       hash        array   ]],
+               [  '',         42,         undef,      {},         []      ],
+isa         => [  0,          0,          0,          0,          0       ],
+does        => [  0,          0,          0,          0,          0       ],
+can         => [  0,          0,          0,          0,          0       ],
+safecall    => [  0,          0,          0,          0,          0       ];

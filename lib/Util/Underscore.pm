@@ -13,9 +13,16 @@ use List::MoreUtils 0.07        ();
 use Carp                        ();
 use Safe::Isa       1.000000    ();
 use Try::Tiny                   ();
-use Data::Util      0.40        ();
 use Package::Stash              ();
 use Data::Dump                  ();
+use overload                    ();
+
+use constant {
+    true => !!1,
+    false => !!0,
+};
+
+## no critic ProhibitSubroutinePrototypes
 
 =pod
 
@@ -37,7 +44,6 @@ It contains functions from the following modules:
 
 =for :list
 * L<Scalar::Util>
-* L<Data::Util>
 * L<List::Util>
 * L<List::MoreUtils>
 * L<Carp>
@@ -66,31 +72,12 @@ BEGIN {
     };
 }
 
-my $assign_aliases_simple = sub {
+my $assign_aliases = sub {
     my ($pkg, %aliases) = @_;
     no strict 'refs';  ## no critic ProhibitNoStrict
     while (my ($this, $that) = each %aliases) {
         *{'_::' . $this} =  *{$pkg . '::' . $that}{CODE}
                          // die "Unknown subroutine ${pkg}::${that}";
-    }
-};
-
-my $assign_aliases = sub {
-    my ($pkg, @aliases) = @_;
-    die "aliases have wrong format" if not @aliases % 3 == 0;
-    no strict 'refs';  ## no critic ProhibitNoStrict
-    while (my ($copy, $orig, $proto) = splice @aliases, 0, 3) {
-        my $orig_cv = *{"${pkg}::${orig}"}{CODE}
-                    // die "Unknown subroutine ${pkg}::${orig}";
-        my $copy_cv;
-        if ($proto eq '/') {
-             $copy_cv = $orig_cv;
-        }
-        else {
-            $copy_cv = sub { goto &$orig_cv };
-            Scalar::Util::set_prototype \&$copy_cv, $proto;
-        }
-        *{'_::' . $copy} = $copy_cv;
     }
 };
 
@@ -150,7 +137,7 @@ wrapper for C<Scalar::Util::tainted>
 
 =cut
 
-$assign_aliases_simple->('Scalar::Util' => qw{
+$assign_aliases->('Scalar::Util' => qw{
     class           blessed
     blessed         blessed
     ref_addr        refaddr
@@ -167,7 +154,7 @@ $assign_aliases_simple->('Scalar::Util' => qw{
     is_tainted      tainted
 });
 
-sub _::prototype ($;$) {    ## no critic ProhibitSubroutinePrototypes
+sub _::prototype ($;$) {
     if (@_ == 2) {
         goto &Scalar::Util::set_prototype if @_ == 2;
     }
@@ -180,48 +167,176 @@ sub _::prototype ($;$) {    ## no critic ProhibitSubroutinePrototypes
     }
 }
 
-=head2 Data::Util
+=head2 Type Validation Utils
+
+These are inspired from C<Params::Util> and C<Data::Util>.
+
+The I<reference validation> routines take one argument (or C<$_>) and return a boolean value.
+They return true when the value is intended to be used as a reference of that kind:
+either C<ref $arg> is of the requested type,
+or it is an overloaded object that can be used as a reference of that kind.
+It will not be checked that an object claims to perform an appropriate role (e.g. C<< $arg->DOES('ARRAY') >>).
+
+=for :list
+* C<_::is_ref> (any nonblessed reference)
+* C<_::is_scalar_ref>
+* C<_::is_array_ref>
+* C<_::is_hash_ref>
+* C<_::is_code_ref>
+* C<_::is_glob_ref>
+* C<_::is_regex> (note that regexes are blessed objects, not plain references)
+
+=cut
+
+sub _::is_ref(_) {
+    return false    if not defined $_[0];
+    return true     if defined Scalar::Util::reftype $_[0]
+                    && ! defined Scalar::Util::blessed $_[0];
+    return false;
+}
+
+sub _::is_scalar_ref(_) {
+    return false    if not defined $_[0];
+    return true     if 'SCALAR' eq ref $_[0]
+                    ||  overload::Method($_[0], '${}');
+    return false;
+}
+
+sub _::is_array_ref(_) {
+    return false    if not defined $_[0];
+    return true     if 'ARRAY' eq ref $_[0]
+                    || overload::Method($_[0], '@{}');
+    return false;
+}
+
+sub _::is_hash_ref(_) {
+    return false    if not defined $_[0];
+    return true     if 'HASH' eq ref $_[0]
+                    || overload::Method($_[0], '%{}');
+    return false;
+}
+
+sub _::is_code_ref(_) {
+    return false    if not defined $_[0];
+    return true     if 'CODE' eq ref $_[0]
+                    || overload::Method($_[0], '&{}');
+    return false;
+}
+
+sub _::is_glob_ref(_) {
+    return false    if not defined $_[0];
+    return true     if 'GLOB' eq ref $_[0]
+                    || overload::Method($_[0], '*{}');
+    return false;
+}
+
+sub _::is_regex(_) {
+    return false    if not defined Scalar::Util::blessed $_[0];
+    return true     if 'Regexp' eq ref $_[0]
+                    || overload::Method($_[0], 'qr');
+    return false;
+}
+
+=pod
+
+An assortment of other validation routines remains.
+A I<simple scalar> is a scalar value which is neither C<undef> nor a reference.
 
 =begin :list
 
-= C<$bool = _::is_scalar_ref $scalar>
-wrapper for C<Data::Util::is_scalar_ref>
+= C<$bool = _::is_int $_>
 
-= C<$bool = _::is_array_ref $scalar>
-wrapper for C<Data::Util::is_array_ref>
+The argument is a simple scalar that's neither C<undef> nor a reference,
+and its stringification matches a signed integer.
 
-= C<$bool = _::is_hash_ref $scalar>
-wrapper for C<Data::Util::is_hash_ref>
+= C<$bool = _::is_uint $_>
 
-= C<$bool = _::is_code_ref $scalar>
-wrapper for C<Data::Util::is_code_ref>
+Like C<_::is_int>, but the stringification must match an unsigned integer
+(i.e. the number is zero or positive).
 
-= C<$bool = _::is_glob_ref $scalar>
-wrapper for C<Data::Util::is_glob_ref>
+= C<$bool = _::is_plain $_>
 
-= C<$bool = _::is_regex $scalar>
-wrapper for C<Data::Util::is_rx>
+Checks that the value is C<defined> and not a reference of any kind.
+This is as close as Perl gets to checking for a string.
 
-= C<$bool = _::is_plain $scalar>
-wrapper for C<Data::Util::is_value>
+= C<$bool = _::is_identifier $_>
 
-= C<$bool = _::is_int $scalar>
-wrapper for C<Data::Util::is_integer>
+Checks that the given string would be a legal identifier:
+a letter followed by zero or more word characters.
+
+= C<$bool = _::is_package $_>
+
+Checks that the given string is a valid package name.
+It only accepts C<Foo::Bar> notation, not the C<Foo'Bar> form.
+This does not assert that the package actually exists.
+
+= C<$bool = _::class_isa $class, $supertype>
+
+Checks that the C<$class> inherits from the given C<$supertype>, both given as strings.
+In most cases, one should use `_::class_does` instead.
+
+= C<$bool = _::class_does $class, $role>
+
+Checks that the C<$class> performs the given C<$role>, both given as strings.
+
+= C<$bool = _::is_instance $object, $role>
+
+Checks that the given C<$object> can perform the C<$role>.
+This is essentially equivalent to `_::does`.
 
 =end :list
 
 =cut
 
-$assign_aliases->('Data::Util' => qw{
-    is_scalar_ref   is_scalar_ref   _
-    is_array_ref    is_array_ref    _
-    is_hash_ref     is_hash_ref     _
-    is_code_ref     is_code_ref     _
-    is_glob_ref     is_glob_ref     _
-    is_regex        is_rx           _
-    is_plain        is_value        _
-    is_int          is_integer      _
-});
+sub _::is_int(_) {
+    return true if  defined $_[0]
+                && ! defined Scalar::Util::reftype $_[0]
+                && $_[0] =~ /\A [-]? [0-9]+ \z/x;
+    return false;
+}
+
+sub _::is_uint(_) {
+    return true if defined $_[0]
+                && ! defined Scalar::Util::reftype $_[0]
+                && $_[0] =~ /\A [0-9]+ \z/x;
+    return false;
+}
+
+sub _::is_plain(_) {
+    return true if defined $_[0]
+                && ! defined Scalar::Util::reftype $_[0];
+    return false;
+}
+
+sub _::is_identifier(_) {
+    return true if defined $_[0]
+                && $_[0] =~ /\A [^\W\d]\w* \z/x;
+    return false;
+}
+
+sub _::is_package(_) {
+    return true if defined $_[0]
+                && $_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x;
+    return false;
+}
+
+sub _::class_isa($$) {
+    return true if _::is_package $_[0]
+                && $_[0]->isa($_[1]);
+    return false;
+}
+
+sub _::class_does($$) {
+    return true if _::is_package $_[0]
+                && $_[0]->DOES($_[1]);
+    return false;
+}
+
+sub _::is_instance($$) {
+    return true if Scalar::Util::blessed $_[0]
+                && $_[0]->DOES($_[1]);
+    return false;
+}
 
 =head2 List::Util and List::MoreUtils
 
@@ -301,7 +416,7 @@ wrapper for C<List::MoreUtils::each_arrayref>
 
 =cut
 
-$assign_aliases_simple->('List::Util' => qw{
+$assign_aliases->('List::Util' => qw{
     reduce      reduce
     any         any
     all         all
@@ -318,7 +433,7 @@ $assign_aliases_simple->('List::Util' => qw{
     shuffle     shuffle
 });
 
-$assign_aliases_simple->('List::MoreUtils' => qw{
+$assign_aliases->('List::MoreUtils' => qw{
     first       first_value
     first_index first_index
     last        last_value
@@ -353,7 +468,7 @@ wrapper for C<Carp::confess>
 
 =cut
 
-$assign_aliases_simple->('Carp' => qw{
+$assign_aliases->('Carp' => qw{
     carp    carp
     cluck   cluck
     croak   croak
@@ -382,19 +497,19 @@ wrapper for C<$Safe::Isa::_call_if_object>
 
 =cut
 
-sub _::isa($$) {  ## no critic ProhibitSubroutinePrototypes
+sub _::isa($$) {
     goto &$Safe::Isa::_isa;
 }
 
-sub _::does($$) {  ## no critic ProhibitSubroutinePrototypes
+sub _::does($$) {
     goto &$Safe::Isa::_DOES;
 }
 
-sub _::can($$) {  ## no critic ProhibitSubroutinePrototypes
+sub _::can($$) {
     goto &$Safe::Isa::_can;
 }
 
-sub _::safecall($$@) {  ## no critic ProhibitSubroutinePrototypes
+sub _::safecall($$@) {
     goto &$Safe::Isa::_call_if_object;
 }
 
@@ -411,7 +526,7 @@ They are all direct aliases for their namesakes in C<Try::Tiny>.
 
 =cut
 
-$assign_aliases_simple->('Try::Tiny' => qw{
+$assign_aliases->('Try::Tiny' => qw{
     try     try
     catch   catch
     finally finally
@@ -423,7 +538,7 @@ The C<_::package $str> function will return a new C<Package::Stash> instance.
 
 =cut
 
-sub _::package($) { ## no critic ProhibitSubroutinePrototypes
+sub _::package($) {
     my ($pkg) = @_;
     return Package::Stash->new($pkg);
 }
@@ -441,15 +556,21 @@ wrapper for C<Data::Dump::pp>
 = C<_::dd @values>
 wrapper for C<Data::Dump::dd>.
 
-= C<$str = _::quote $str>
-wrapper for C<Data::Dump::quote>.
-
 =cut
 
 $assign_aliases->('Data::Dump' => qw{
-    pp      pp      /
-    dd      dd      /
-    quote   quote   _
+    pp      pp
+    dd      dd
 });
+
+=head1 RELATED MODULES
+
+The following modules were once considered for inclusion or were otherwise influental in the design of this collection:
+
+=for :list
+* L<Data::Util>
+* L<Params::Util>
+
+=cut
 
 1;

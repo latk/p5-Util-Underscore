@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 13;
 
 use Util::Underscore;
 
@@ -25,10 +25,13 @@ use Util::Underscore;
 }
 
 my %functions = (
-    isa     => sub { _::isa      $_, 'Local::Parent'},
-    does    => sub { _::does     $_, 'Local::Parent'},
-    can     => sub { _::can      $_, 'marker',      },
-    safecall=> sub { _::safecall $_, meth => 1, 2   },
+    isa         => sub { _::isa         $_, 'Local::Parent' },
+    does        => sub { _::does        $_, 'Local::Parent' },
+    can         => sub { _::can         $_, 'marker',       },
+    safecall    => sub { _::safecall    $_, meth => 1, 2    },
+    class_isa   => sub { _::class_isa   $_, 'Local::Parent' },
+    class_does  => sub { _::class_does  $_, 'Local::Parent' },
+    is_instance => sub { _::is_instance $_, 'Local::Parent' },
 );
 
 sub value_matrix_ok {
@@ -46,19 +49,30 @@ sub value_matrix_ok {
     }
 }
 
-my $parent    = bless [] => 'Local::Parent';
-my $child     = bless [] => 'Local::Child';
-my $mocker    = bless [] => 'Local::Mocker';
-my $unrelated = bless [] => 'Local::Unrelated';
-my $package = 'Local::Parent';
+my $pi = bless [] => 'Local::Parent';
+my $ci = bless [] => 'Local::Child';
+my $mi = bless [] => 'Local::Mocker';
+my $ui = bless [] => 'Local::Unrelated';
+my $pp = 'Local::Parent';
+my $cp = 'Local::Child';
+my $mp = 'Local::Mocker';
+my $up = 'Local::Unrelated';
 
 value_matrix_ok
-            [qw[  parent      child       mocker      unrelated   package ]],
-               [ $parent,    $child,     $mocker,    $unrelated, $package ],
-isa         => [  1,          1,          0,          0,          0,      ],
-does        => [  1,          1,          1,          0,          0,      ],
-can         => [  1,          1,          0,          0,          0,      ],
-safecall    => [  1,          1,          1,          1,          0,      ];
+            [qw[  iparent     ichild      imocker     iunrelated ]],
+               [ $pi,        $ci,        $mi,        $ui        ],
+isa         => [  1,          1,          0,          0         ],
+does        => [  1,          1,          1,          0         ],
+can         => [  1,          1,          0,          0         ],
+safecall    => [  1,          1,          1,          1         ],
+safecall    => [  1,          1,          1,          1         ];
+value_matrix_ok
+            [qw[  pparent     pchild      pmocker     punrelated ]],
+               [ $pp,        $cp,        $mp,        $up        ],
+isa         => [  0,          0,          0,          0         ],
+does        => [  0,          0,          0,          0         ],
+can         => [  0,          0,          0,          0         ],
+safecall    => [  0,          0,          0,          0         ];
 value_matrix_ok
             [qw[  string      number      undef       hash        array   ]],
                [  '',         42,         undef,      {},         []      ],

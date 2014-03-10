@@ -9,5 +9,6 @@ use Util::Underscore;
 
 for my $sub (qw/try catch finally/) {
     no strict 'refs';
-    ok \&{"_::$sub"} == \&{"Try::Tiny::$sub"}, "\\&_::$sub == \\&Try::Tiny::$sub";
+    ok \&{"_::$sub"} == \&{"Try::Tiny::$sub"},
+        "\\&_::$sub == \\&Try::Tiny::$sub";
 }

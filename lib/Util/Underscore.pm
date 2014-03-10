@@ -1,4 +1,5 @@
 package Util::Underscore;
+
 #ABSTRACT: Common helper functions without having to import them
 
 use strict;
@@ -7,18 +8,18 @@ no warnings 'once';
 
 use version 0.77 (); our $VERSION = version->declare('v1.0.1');
 
-use Scalar::Util    1.36        ();
-use List::Util      1.35        ();
-use List::MoreUtils 0.07        ();
-use Carp                        ();
-use Safe::Isa       1.000000    ();
-use Try::Tiny                   ();
-use Package::Stash              ();
-use Data::Dump                  ();
-use overload                    ();
+use Scalar::Util 1.36    ();
+use List::Util 1.35      ();
+use List::MoreUtils 0.07 ();
+use Carp ();
+use Safe::Isa 1.000000 ();
+use Try::Tiny      ();
+use Package::Stash ();
+use Data::Dump     ();
+use overload       ();
 
 use constant {
-    true => !!1,
+    true  => !!1,
     false => !!0,
 };
 
@@ -65,19 +66,19 @@ BEGIN {
     # prevent other "_" packages from being loaded:
     # Just setting the ${INC} entry would fail too silently,
     # so we also rigged the "import" method.
-    
+
     $INC{'_.pm'} = *_::import = sub {
         Carp::confess qq(The "_" package is internal to Util::Underscore)
-                    . qq(and must not be imported directly.\n);
+            . qq(and must not be imported directly.\n);
     };
 }
 
 my $assign_aliases = sub {
     my ($pkg, %aliases) = @_;
-    no strict 'refs';  ## no critic ProhibitNoStrict
+    no strict 'refs';    ## no critic ProhibitNoStrict
     while (my ($this, $that) = each %aliases) {
-        *{'_::' . $this} =  *{$pkg . '::' . $that}{CODE}
-                         // die "Unknown subroutine ${pkg}::${that}";
+        *{ '_::' . $this } = *{ $pkg . '::' . $that }{CODE}
+            // die "Unknown subroutine ${pkg}::${that}";
     }
 };
 
@@ -137,22 +138,23 @@ wrapper for C<Scalar::Util::tainted>
 
 =cut
 
-$assign_aliases->('Scalar::Util' => qw{
-    class           blessed
-    blessed         blessed
-    ref_addr        refaddr
-    ref_type        reftype
-    ref_weaken      weaken
-    ref_unweaken    unweaken
-    ref_is_weak     isweak
-    new_dual        dualvar
-    is_dual         isdual
-    is_vstring      isvstring
-    is_numeric      looks_like_number
-    is_open         openhandle
-    is_readonly     readonly
-    is_tainted      tainted
-});
+$assign_aliases->(
+    'Scalar::Util',
+    class        => 'blessed',
+    blessed      => 'blessed',
+    ref_addr     => 'refaddr',
+    ref_type     => 'reftype',
+    ref_weaken   => 'weaken',
+    ref_unweaken => 'unweaken',
+    ref_is_weak  => 'isweak',
+    new_dual     => 'dualvar',
+    is_dual      => 'isdual',
+    is_vstring   => 'isvstring',
+    is_numeric   => 'looks_like_number',
+    is_open      => 'openhandle',
+    is_readonly  => 'readonly',
+    is_tainted   => 'tainted',
+);
 
 sub _::prototype ($;$) {
     if (@_ == 2) {
@@ -189,51 +191,58 @@ It will not be checked that an object claims to perform an appropriate role (e.g
 =cut
 
 sub _::is_ref(_) {
-    return false    if not defined $_[0];
-    return true     if defined Scalar::Util::reftype $_[0]
-                    && ! defined Scalar::Util::blessed $_[0];
+    return false if not defined $_[0];
+    return true
+        if defined Scalar::Util::reftype $_[0]
+        && !defined Scalar::Util::blessed $_[0];
     return false;
 }
 
 sub _::is_scalar_ref(_) {
-    return false    if not defined $_[0];
-    return true     if 'SCALAR' eq ref $_[0]
-                    ||  overload::Method($_[0], '${}');
+    return false if not defined $_[0];
+    return true
+        if 'SCALAR' eq ref $_[0]
+        || overload::Method($_[0], '${}');
     return false;
 }
 
 sub _::is_array_ref(_) {
-    return false    if not defined $_[0];
-    return true     if 'ARRAY' eq ref $_[0]
-                    || overload::Method($_[0], '@{}');
+    return false if not defined $_[0];
+    return true
+        if 'ARRAY' eq ref $_[0]
+        || overload::Method($_[0], '@{}');
     return false;
 }
 
 sub _::is_hash_ref(_) {
-    return false    if not defined $_[0];
-    return true     if 'HASH' eq ref $_[0]
-                    || overload::Method($_[0], '%{}');
+    return false if not defined $_[0];
+    return true
+        if 'HASH' eq ref $_[0]
+        || overload::Method($_[0], '%{}');
     return false;
 }
 
 sub _::is_code_ref(_) {
-    return false    if not defined $_[0];
-    return true     if 'CODE' eq ref $_[0]
-                    || overload::Method($_[0], '&{}');
+    return false if not defined $_[0];
+    return true
+        if 'CODE' eq ref $_[0]
+        || overload::Method($_[0], '&{}');
     return false;
 }
 
 sub _::is_glob_ref(_) {
-    return false    if not defined $_[0];
-    return true     if 'GLOB' eq ref $_[0]
-                    || overload::Method($_[0], '*{}');
+    return false if not defined $_[0];
+    return true
+        if 'GLOB' eq ref $_[0]
+        || overload::Method($_[0], '*{}');
     return false;
 }
 
 sub _::is_regex(_) {
-    return false    if not defined Scalar::Util::blessed $_[0];
-    return true     if 'Regexp' eq ref $_[0]
-                    || overload::Method($_[0], 'qr');
+    return false if not defined Scalar::Util::blessed $_[0];
+    return true
+        if 'Regexp' eq ref $_[0]
+        || overload::Method($_[0], 'qr');
     return false;
 }
 
@@ -289,52 +298,60 @@ This is essentially equivalent to `_::does`.
 =cut
 
 sub _::is_int(_) {
-    return true if  defined $_[0]
-                && ! defined Scalar::Util::reftype $_[0]
-                && $_[0] =~ /\A [-]? [0-9]+ \z/x;
+    return true
+        if defined $_[0]
+        && !defined Scalar::Util::reftype $_[0]
+        && $_[0] =~ /\A [-]? [0-9]+ \z/x;
     return false;
 }
 
 sub _::is_uint(_) {
-    return true if defined $_[0]
-                && ! defined Scalar::Util::reftype $_[0]
-                && $_[0] =~ /\A [0-9]+ \z/x;
+    return true
+        if defined $_[0]
+        && !defined Scalar::Util::reftype $_[0]
+        && $_[0] =~ /\A [0-9]+ \z/x;
     return false;
 }
 
 sub _::is_plain(_) {
-    return true if defined $_[0]
-                && ! defined Scalar::Util::reftype $_[0];
+    return true
+        if defined $_[0]
+        && !defined Scalar::Util::reftype $_[0];
     return false;
 }
 
 sub _::is_identifier(_) {
-    return true if defined $_[0]
-                && $_[0] =~ /\A [^\W\d]\w* \z/x;
+    return true
+        if defined $_[0]
+        && $_[0] =~ /\A [^\W\d]\w* \z/x;
     return false;
 }
 
 sub _::is_package(_) {
-    return true if defined $_[0]
-                && $_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x;
+    return true
+        if defined $_[0]
+        && $_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x;
     return false;
 }
 
 sub _::class_isa($$) {
-    return true if _::is_package $_[0]
-                && $_[0]->isa($_[1]);
+    return true
+        if _::is_package $_[0]
+        && $_[0]->isa($_[1]);
     return false;
 }
 
 sub _::class_does($$) {
-    return true if _::is_package $_[0]
-                && $_[0]->DOES($_[1]);
+    return true
+        if _::is_package $_[0]
+        && $_[0]->DOES($_[1]);
     return false;
 }
 
 sub _::is_instance($$) {
-    return true if Scalar::Util::blessed $_[0]
-                && $_[0]->DOES($_[1]);
+    return true
+        if Scalar::Util::blessed $_[0]
+        && $_[0]->DOES($_[1]);
     return false;
 }
 
@@ -416,36 +433,38 @@ wrapper for C<List::MoreUtils::each_arrayref>
 
 =cut
 
-$assign_aliases->('List::Util' => qw{
-    reduce      reduce
-    any         any
-    all         all
-    none        none
-    max         max
-    max_str     maxstr
-    min         min
-    min_str     minstr
-    sum         sum
-    product     product
-    pairgrep    pairgrep
-    pairfirst   pairfirst
-    pairmap     pairmap
-    shuffle     shuffle
-});
+$assign_aliases->(
+    'List::Util',
+    reduce    => 'reduce',
+    any       => 'any',
+    all       => 'all',
+    none      => 'none',
+    max       => 'max',
+    max_str   => 'maxstr',
+    min       => 'min',
+    min_str   => 'minstr',
+    sum       => 'sum',
+    product   => 'product',
+    pairgrep  => 'pairgrep',
+    pairfirst => 'pairfirst',
+    pairmap   => 'pairmap',
+    shuffle   => 'shuffle',
+);
 
-$assign_aliases->('List::MoreUtils' => qw{
-    first       first_value
-    first_index first_index
-    last        last_value
-    last_index  last_index
-    natatime    natatime
-    uniq        uniq
-    part        part
-    each_array  each_arrayref
-});
+$assign_aliases->(
+    'List::MoreUtils',
+    first       => 'first_value',
+    first_index => 'first_index',
+    last        => 'last_value',
+    last_index  => 'last_index',
+    natatime    => 'natatime',
+    uniq        => 'uniq',
+    part        => 'part',
+    each_array  => 'each_arrayref',
+);
 
 sub _::zip {
-    goto &List::MoreUtils::zip;  # adios, prototypes!
+    goto &List::MoreUtils::zip;    # adios, prototypes!
 }
 
 =head2 Carp
@@ -468,12 +487,13 @@ wrapper for C<Carp::confess>
 
 =cut
 
-$assign_aliases->('Carp' => qw{
-    carp    carp
-    cluck   cluck
-    croak   croak
-    confess confess
-});
+$assign_aliases->(
+    'Carp',
+    carp    => 'carp',
+    cluck   => 'cluck',
+    croak   => 'croak',
+    confess => 'confess',
+);
 
 =head2 UNIVERSAL
 
@@ -526,11 +546,12 @@ They are all direct aliases for their namesakes in C<Try::Tiny>.
 
 =cut
 
-$assign_aliases->('Try::Tiny' => qw{
-    try     try
-    catch   catch
-    finally finally
-});
+$assign_aliases->(
+    'Try::Tiny',
+    try     => 'try',
+    catch   => 'catch',
+    finally => 'finally',
+);
 
 =head2 Package::Stash
 
@@ -556,12 +577,15 @@ wrapper for C<Data::Dump::pp>
 = C<_::dd @values>
 wrapper for C<Data::Dump::dd>.
 
+=end :list
+
 =cut
 
-$assign_aliases->('Data::Dump' => qw{
-    pp      pp
-    dd      dd
-});
+$assign_aliases->(
+    'Data::Dump',
+    pp => 'pp',
+    dd => 'dd',
+);
 
 =head1 RELATED MODULES
 

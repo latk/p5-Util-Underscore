@@ -22,7 +22,7 @@ my %lu_aliases = qw/
     pairfirst   pairfirst
     pairmap     pairmap
     shuffle     shuffle
-/;
+    /;
 
 while (my ($k, $v) = each %lu_aliases) {
     no strict 'refs';
@@ -38,7 +38,7 @@ my %lmu_aliases = qw/
     uniq        uniq
     part        part
     each_array  each_arrayref
-/;
+    /;
 
 while (my ($k, $v) = each %lmu_aliases) {
     no strict 'refs';
@@ -49,4 +49,5 @@ while (my ($k, $v) = each %lmu_aliases) {
 
 my @xs = qw/a b c d/;
 my @ys = qw/1 2 3/;
-is_deeply [_::zip \@xs, \@ys], [a => 1, b => 2, c => 3, d => undef], '_::zip sanity test';
+is_deeply [ _::zip \@xs, \@ys ], [ a => 1, b => 2, c => 3, d => undef ],
+    '_::zip sanity test';

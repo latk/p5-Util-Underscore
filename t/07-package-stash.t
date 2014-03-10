@@ -9,6 +9,7 @@ use Util::Underscore;
 
 # fixture
 {
+
     package Foo;
 }
 

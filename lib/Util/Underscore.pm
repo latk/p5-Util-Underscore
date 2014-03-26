@@ -69,18 +69,14 @@ BEGIN {
     };
 }
 
-my $assign_aliases = sub {
-    my ($pkg, %aliases) = @_;
-    no strict 'refs';    ## no critic ProhibitNoStrict
-    while (my ($this, $that) = each %aliases) {
-        *{ '_::' . $this } = *{ $pkg . '::' . $that }{CODE}
-            // die "Unknown subroutine ${pkg}::${that}";
-    }
-};
 
 =head1 FUNCTION REFERENCE
 
 =cut
+
+# From now, every function is in the _ package
+package # Hide from PAUSE
+    _;
 
 =head2 Scalar::Util
 
@@ -134,23 +130,38 @@ wrapper for C<Scalar::Util::tainted>
 
 =cut
 
-$assign_aliases->(
-    'Scalar::Util',
-    class        => 'blessed',
-    blessed      => 'blessed',
-    ref_addr     => 'refaddr',
-    ref_type     => 'reftype',
-    ref_weaken   => 'weaken',
-    ref_unweaken => 'unweaken',
-    ref_is_weak  => 'isweak',
-    new_dual     => 'dualvar',
-    is_dual      => 'isdual',
-    is_vstring   => 'isvstring',
-    is_numeric   => 'looks_like_number',
-    is_open      => 'openhandle',
-    is_readonly  => 'readonly',
-    is_tainted   => 'tainted',
-);
+my $assign_aliases;
+
+BEGIN {
+    $assign_aliases = sub {
+	my ($pkg, %aliases) = @_;
+	no strict 'refs';    ## no critic ProhibitNoStrict
+	while (my ($this, $that) = each %aliases) {
+	    *{ '_::' . $this } = *{ $pkg . '::' . $that }{CODE}
+		// die "Unknown subroutine ${pkg}::${that}";
+	}
+    };
+
+    # Inject immediately during compile because we want to use unprefixed subs
+    # in our other subs definitions below.
+    $assign_aliases->(
+	'Scalar::Util',
+	class        => 'blessed',
+	blessed      => 'blessed',
+	ref_addr     => 'refaddr',
+	ref_type     => 'reftype',
+	ref_weaken   => 'weaken',
+	ref_unweaken => 'unweaken',
+	ref_is_weak  => 'isweak',
+	new_dual     => 'dualvar',
+	is_dual      => 'isdual',
+	is_vstring   => 'isvstring',
+	is_numeric   => 'looks_like_number',
+	is_open      => 'openhandle',
+	is_readonly  => 'readonly',
+	is_tainted   => 'tainted',
+    );
+}
 
 sub _::prototype ($;$) {
     if (@_ == 2) {
@@ -158,7 +169,7 @@ sub _::prototype ($;$) {
     }
     if (@_ == 1) {
         my ($coderef) = @_;
-        return prototype $coderef;
+        return prototype $coderef;  # Calls CORE::prototype
     }
     else {
         Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
@@ -186,44 +197,44 @@ It will not be checked that an object claims to perform an appropriate role (e.g
 
 =cut
 
-sub _::is_ref(_) {
+sub is_ref(_) {
        defined($_[0])
-    && defined Scalar::Util::reftype $_[0]
-    && !defined Scalar::Util::blessed $_[0]
+    && defined ref_type $_[0]
+    && !defined blessed $_[0]
 }
 
-sub _::is_scalar_ref(_) {
+sub is_scalar_ref(_) {
        defined($_[0])
     && ('SCALAR' eq ref $_[0]
         || overload::Method($_[0], '${}'))
 }
 
-sub _::is_array_ref(_) {
+sub is_array_ref(_) {
        defined($_[0])
     && ('ARRAY' eq ref $_[0]
         || overload::Method($_[0], '@{}'))
 }
 
-sub _::is_hash_ref(_) {
+sub is_hash_ref(_) {
        defined($_[0])
     && ('HASH' eq ref $_[0]
         || overload::Method($_[0], '%{}'))
 }
 
-sub _::is_code_ref(_) {
+sub is_code_ref(_) {
        defined($_[0])
     && ('CODE' eq ref $_[0]
         || overload::Method($_[0], '&{}'))
 }
 
-sub _::is_glob_ref(_) {
+sub is_glob_ref(_) {
        defined($_[0])
     && ('GLOB' eq ref $_[0]
         || overload::Method($_[0], '*{}'))
 }
 
-sub _::is_regex(_) {
-       defined(Scalar::Util::blessed $_[0])
+sub is_regex(_) {
+       defined(blessed $_[0])
     && ('Regexp' eq ref $_[0]
         || overload::Method($_[0], 'qr'))
 }
@@ -279,45 +290,45 @@ This is essentially equivalent to `_::does`.
 
 =cut
 
-sub _::is_int(_) {
+sub is_int(_) {
        defined $_[0]
-    && !defined Scalar::Util::reftype $_[0]
+    && !defined ref_type $_[0]
     && scalar( $_[0] =~ /\A [-]? [0-9]+ \z/x )
 }
 
-sub _::is_uint(_) {
+sub is_uint(_) {
         defined $_[0]
-    && !defined Scalar::Util::reftype $_[0]
+    && !defined ref_type $_[0]
     && scalar( $_[0] =~ /\A [0-9]+ \z/x )
 }
 
-sub _::is_plain(_) {
+sub is_plain(_) {
        defined $_[0]
-    && !defined Scalar::Util::reftype $_[0]
+    && !defined ref_type $_[0]
 }
 
-sub _::is_identifier(_) {
+sub is_identifier(_) {
        defined $_[0]
     && scalar( $_[0] =~ /\A [^\W\d]\w* \z/x )
 }
 
-sub _::is_package(_) {
+sub is_package(_) {
        defined $_[0]
     && scalar( $_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x )
 }
 
-sub _::class_isa($$) {
-       _::is_package($_[0])
+sub class_isa($$) {
+       is_package($_[0])
     && $_[0]->isa($_[1])
 }
 
-sub _::class_does($$) {
-       _::is_package($_[0])
+sub class_does($$) {
+       is_package($_[0])
     && $_[0]->DOES($_[1])
 }
 
-sub _::is_instance($$) {
-       Scalar::Util::blessed $_[0]
+sub is_instance($$) {
+       blessed $_[0]
     && $_[0]->DOES($_[1])
 }
 
@@ -429,7 +440,7 @@ $assign_aliases->(
     each_array  => 'each_arrayref',
 );
 
-sub _::zip {
+sub zip {
     goto &List::MoreUtils::zip;    # adios, prototypes!
 }
 
@@ -483,19 +494,19 @@ wrapper for C<$Safe::Isa::_call_if_object>
 
 =cut
 
-sub _::isa($$) {
+sub isa($$) {
     goto &$Safe::Isa::_isa;
 }
 
-sub _::does($$) {
+sub does($$) {
     goto &$Safe::Isa::_DOES;
 }
 
-sub _::can($$) {
+sub can($$) {
     goto &$Safe::Isa::_can;
 }
 
-sub _::safecall($$@) {
+sub safecall($$@) {
     goto &$Safe::Isa::_call_if_object;
 }
 
@@ -525,7 +536,7 @@ The C<_::package $str> function will return a new C<Package::Stash> instance.
 
 =cut
 
-sub _::package($) {
+sub package($) {
     my ($pkg) = @_;
     return Package::Stash->new($pkg);
 }

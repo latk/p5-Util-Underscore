@@ -18,10 +18,6 @@ use Package::Stash ();
 use Data::Dump     ();
 use overload       ();
 
-use constant {
-    true  => !!1,
-    false => !!0,
-};
 
 ## no critic ProhibitSubroutinePrototypes
 
@@ -191,59 +187,45 @@ It will not be checked that an object claims to perform an appropriate role (e.g
 =cut
 
 sub _::is_ref(_) {
-    return false if not defined $_[0];
-    return true
-        if defined Scalar::Util::reftype $_[0]
-        && !defined Scalar::Util::blessed $_[0];
-    return false;
+       defined($_[0])
+    && defined Scalar::Util::reftype $_[0]
+    && !defined Scalar::Util::blessed $_[0]
 }
 
 sub _::is_scalar_ref(_) {
-    return false if not defined $_[0];
-    return true
-        if 'SCALAR' eq ref $_[0]
-        || overload::Method($_[0], '${}');
-    return false;
+       defined($_[0])
+    && ('SCALAR' eq ref $_[0]
+        || overload::Method($_[0], '${}'))
 }
 
 sub _::is_array_ref(_) {
-    return false if not defined $_[0];
-    return true
-        if 'ARRAY' eq ref $_[0]
-        || overload::Method($_[0], '@{}');
-    return false;
+       defined($_[0])
+    && ('ARRAY' eq ref $_[0]
+        || overload::Method($_[0], '@{}'))
 }
 
 sub _::is_hash_ref(_) {
-    return false if not defined $_[0];
-    return true
-        if 'HASH' eq ref $_[0]
-        || overload::Method($_[0], '%{}');
-    return false;
+       defined($_[0])
+    && ('HASH' eq ref $_[0]
+        || overload::Method($_[0], '%{}'))
 }
 
 sub _::is_code_ref(_) {
-    return false if not defined $_[0];
-    return true
-        if 'CODE' eq ref $_[0]
-        || overload::Method($_[0], '&{}');
-    return false;
+       defined($_[0])
+    && ('CODE' eq ref $_[0]
+        || overload::Method($_[0], '&{}'))
 }
 
 sub _::is_glob_ref(_) {
-    return false if not defined $_[0];
-    return true
-        if 'GLOB' eq ref $_[0]
-        || overload::Method($_[0], '*{}');
-    return false;
+       defined($_[0])
+    && ('GLOB' eq ref $_[0]
+        || overload::Method($_[0], '*{}'))
 }
 
 sub _::is_regex(_) {
-    return false if not defined Scalar::Util::blessed $_[0];
-    return true
-        if 'Regexp' eq ref $_[0]
-        || overload::Method($_[0], 'qr');
-    return false;
+       defined(Scalar::Util::blessed $_[0])
+    && ('Regexp' eq ref $_[0]
+        || overload::Method($_[0], 'qr'))
 }
 
 =pod
@@ -298,61 +280,45 @@ This is essentially equivalent to `_::does`.
 =cut
 
 sub _::is_int(_) {
-    return true
-        if defined $_[0]
-        && !defined Scalar::Util::reftype $_[0]
-        && $_[0] =~ /\A [-]? [0-9]+ \z/x;
-    return false;
+       defined $_[0]
+    && !defined Scalar::Util::reftype $_[0]
+    && scalar( $_[0] =~ /\A [-]? [0-9]+ \z/x )
 }
 
 sub _::is_uint(_) {
-    return true
-        if defined $_[0]
-        && !defined Scalar::Util::reftype $_[0]
-        && $_[0] =~ /\A [0-9]+ \z/x;
-    return false;
+        defined $_[0]
+    && !defined Scalar::Util::reftype $_[0]
+    && scalar( $_[0] =~ /\A [0-9]+ \z/x )
 }
 
 sub _::is_plain(_) {
-    return true
-        if defined $_[0]
-        && !defined Scalar::Util::reftype $_[0];
-    return false;
+       defined $_[0]
+    && !defined Scalar::Util::reftype $_[0]
 }
 
 sub _::is_identifier(_) {
-    return true
-        if defined $_[0]
-        && $_[0] =~ /\A [^\W\d]\w* \z/x;
-    return false;
+       defined $_[0]
+    && scalar( $_[0] =~ /\A [^\W\d]\w* \z/x )
 }
 
 sub _::is_package(_) {
-    return true
-        if defined $_[0]
-        && $_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x;
-    return false;
+       defined $_[0]
+    && scalar( $_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x )
 }
 
 sub _::class_isa($$) {
-    return true
-        if _::is_package $_[0]
-        && $_[0]->isa($_[1]);
-    return false;
+       _::is_package($_[0])
+    && $_[0]->isa($_[1])
 }
 
 sub _::class_does($$) {
-    return true
-        if _::is_package $_[0]
-        && $_[0]->DOES($_[1]);
-    return false;
+       _::is_package($_[0])
+    && $_[0]->DOES($_[1])
 }
 
 sub _::is_instance($$) {
-    return true
-        if Scalar::Util::blessed $_[0]
-        && $_[0]->DOES($_[1]);
-    return false;
+       Scalar::Util::blessed $_[0]
+    && $_[0]->DOES($_[1])
 }
 
 =head2 List::Util and List::MoreUtils

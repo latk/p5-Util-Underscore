@@ -18,7 +18,6 @@ use Package::Stash ();
 use Data::Dump     ();
 use overload       ();
 
-
 ## no critic ProhibitSubroutinePrototypes
 
 =pod
@@ -69,13 +68,12 @@ BEGIN {
     };
 }
 
-
 =head1 FUNCTION REFERENCE
 
 =cut
 
 # From now, every function is in the _ package
-package # Hide from PAUSE
+package    # Hide from PAUSE
     _;
 
 =head2 Scalar::Util
@@ -134,32 +132,32 @@ my $assign_aliases;
 
 BEGIN {
     $assign_aliases = sub {
-	my ($pkg, %aliases) = @_;
-	no strict 'refs';    ## no critic ProhibitNoStrict
-	while (my ($this, $that) = each %aliases) {
-	    *{ '_::' . $this } = *{ $pkg . '::' . $that }{CODE}
-		// die "Unknown subroutine ${pkg}::${that}";
-	}
+        my ($pkg, %aliases) = @_;
+        no strict 'refs';    ## no critic ProhibitNoStrict
+        while (my ($this, $that) = each %aliases) {
+            *{ '_::' . $this } = *{ $pkg . '::' . $that }{CODE}
+                // die "Unknown subroutine ${pkg}::${that}";
+        }
     };
 
     # Inject immediately during compile because we want to use unprefixed subs
     # in our other subs definitions below.
     $assign_aliases->(
-	'Scalar::Util',
-	class        => 'blessed',
-	blessed      => 'blessed',
-	ref_addr     => 'refaddr',
-	ref_type     => 'reftype',
-	ref_weaken   => 'weaken',
-	ref_unweaken => 'unweaken',
-	ref_is_weak  => 'isweak',
-	new_dual     => 'dualvar',
-	is_dual      => 'isdual',
-	is_vstring   => 'isvstring',
-	is_numeric   => 'looks_like_number',
-	is_open      => 'openhandle',
-	is_readonly  => 'readonly',
-	is_tainted   => 'tainted',
+        'Scalar::Util',
+        class        => 'blessed',
+        blessed      => 'blessed',
+        ref_addr     => 'refaddr',
+        ref_type     => 'reftype',
+        ref_weaken   => 'weaken',
+        ref_unweaken => 'unweaken',
+        ref_is_weak  => 'isweak',
+        new_dual     => 'dualvar',
+        is_dual      => 'isdual',
+        is_vstring   => 'isvstring',
+        is_numeric   => 'looks_like_number',
+        is_open      => 'openhandle',
+        is_readonly  => 'readonly',
+        is_tainted   => 'tainted',
     );
 }
 
@@ -169,7 +167,7 @@ sub _::prototype ($;$) {
     }
     if (@_ == 1) {
         my ($coderef) = @_;
-        return prototype $coderef;  # Calls CORE::prototype
+        return prototype $coderef;    # Calls CORE::prototype
     }
     else {
         Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
@@ -198,45 +196,45 @@ It will not be checked that an object claims to perform an appropriate role (e.g
 =cut
 
 sub is_ref(_) {
-       defined($_[0])
-    && defined ref_type $_[0]
-    && !defined blessed $_[0]
+    defined($_[0])
+        && defined ref_type $_[0]
+        && !defined blessed $_[0];
 }
 
 sub is_scalar_ref(_) {
-       defined($_[0])
-    && ('SCALAR' eq ref $_[0]
-        || overload::Method($_[0], '${}'))
+    defined($_[0])
+        && ('SCALAR' eq ref $_[0]
+        || overload::Method($_[0], '${}'));
 }
 
 sub is_array_ref(_) {
-       defined($_[0])
-    && ('ARRAY' eq ref $_[0]
-        || overload::Method($_[0], '@{}'))
+    defined($_[0])
+        && ('ARRAY' eq ref $_[0]
+        || overload::Method($_[0], '@{}'));
 }
 
 sub is_hash_ref(_) {
-       defined($_[0])
-    && ('HASH' eq ref $_[0]
-        || overload::Method($_[0], '%{}'))
+    defined($_[0])
+        && ('HASH' eq ref $_[0]
+        || overload::Method($_[0], '%{}'));
 }
 
 sub is_code_ref(_) {
-       defined($_[0])
-    && ('CODE' eq ref $_[0]
-        || overload::Method($_[0], '&{}'))
+    defined($_[0])
+        && ('CODE' eq ref $_[0]
+        || overload::Method($_[0], '&{}'));
 }
 
 sub is_glob_ref(_) {
-       defined($_[0])
-    && ('GLOB' eq ref $_[0]
-        || overload::Method($_[0], '*{}'))
+    defined($_[0])
+        && ('GLOB' eq ref $_[0]
+        || overload::Method($_[0], '*{}'));
 }
 
 sub is_regex(_) {
-       defined(blessed $_[0])
-    && ('Regexp' eq ref $_[0]
-        || overload::Method($_[0], 'qr'))
+    defined(blessed $_[0])
+        && ('Regexp' eq ref $_[0]
+        || overload::Method($_[0], 'qr'));
 }
 
 =pod
@@ -291,45 +289,45 @@ This is essentially equivalent to `_::does`.
 =cut
 
 sub is_int(_) {
-       defined $_[0]
-    && !defined ref_type $_[0]
-    && scalar( $_[0] =~ /\A [-]? [0-9]+ \z/x )
+    defined $_[0]
+        && !defined ref_type $_[0]
+        && scalar($_[0] =~ /\A [-]? [0-9]+ \z/x);
 }
 
 sub is_uint(_) {
-        defined $_[0]
-    && !defined ref_type $_[0]
-    && scalar( $_[0] =~ /\A [0-9]+ \z/x )
+    defined $_[0]
+        && !defined ref_type $_[0]
+        && scalar($_[0] =~ /\A [0-9]+ \z/x);
 }
 
 sub is_plain(_) {
-       defined $_[0]
-    && !defined ref_type $_[0]
+    defined $_[0]
+        && !defined ref_type $_[0];
 }
 
 sub is_identifier(_) {
-       defined $_[0]
-    && scalar( $_[0] =~ /\A [^\W\d]\w* \z/x )
+    defined $_[0]
+        && scalar($_[0] =~ /\A [^\W\d]\w* \z/x);
 }
 
 sub is_package(_) {
-       defined $_[0]
-    && scalar( $_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x )
+    defined $_[0]
+        && scalar($_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x);
 }
 
 sub class_isa($$) {
-       is_package($_[0])
-    && $_[0]->isa($_[1])
+    is_package($_[0])
+        && $_[0]->isa($_[1]);
 }
 
 sub class_does($$) {
-       is_package($_[0])
-    && $_[0]->DOES($_[1])
+    is_package($_[0])
+        && $_[0]->DOES($_[1]);
 }
 
 sub is_instance($$) {
-       blessed $_[0]
-    && $_[0]->DOES($_[1])
+    blessed $_[0]
+        && $_[0]->DOES($_[1]);
 }
 
 =head2 List::Util and List::MoreUtils

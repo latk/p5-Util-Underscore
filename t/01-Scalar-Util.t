@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 13;
 
 use Util::Underscore;
 
@@ -14,7 +14,6 @@ my %aliases = qw/
     ref_weaken      weaken
     ref_unweaken    unweaken
     ref_is_weak     isweak
-    is_numeric      looks_like_number
     is_open         openhandle
     /;
 

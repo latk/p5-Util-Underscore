@@ -76,58 +76,6 @@ BEGIN {
 package    # Hide from PAUSE
     _;
 
-=head2 Scalar::Util
-
-=begin :list
-
-= C<$str = _::blessed $object>
-= C<$str = _::class $object>
-wrapper for C<Scalar::Util::blessed>
-
-= C<$int = _::ref_addr $ref>
-wrapper for C<Scalar::Util::refaddr>
-
-= C<$str = _::ref_type $ref>
-wrapper for C<Scalar::Util::reftype>
-
-= C<_::ref_weaken $ref>
-wrapper for C<Scalar::Util::weaken>
-
-= C<_::ref_unweaken $ref>
-wrapper for C<Scalar::Util::unweaken>
-
-= C<$bool = _::ref_is_weak $ref>
-wrapper for C<Scalar::Util::isweak>
-
-= C<$scalar = _::new_dual $num, $str>
-wrapper for C<Scalar::Util::dualvar>
-
-= C<$bool = _::is_dual $scalar>
-wrapper for C<Scalar::Util::isdual>
-
-= C<$bool = _::is_vstring $scalar>
-wrapper for C<Scalar::Util::isvstring>
-
-= C<$bool = _::is_numeric $scalar>
-wrapper for C<Scalar::Util::looks_like_number>
-
-= C<$fh = _::is_open $fh>
-wrapper for C<Scalar::Util::openhandle>
-
-= C<$bool = _::is_readonly $scalar>
-wrapper for C<Scalar::Util::readonly>
-
-= C<$str = _::prototype \&code>
-= C<_::prototype \&code, $new_proto>
-gets or sets the prototype, wrapping either C<CORE::prototype> or C<Scalar::Util::set_prototype>
-
-= C<$bool = _::is_tainted $scalar>
-wrapper for C<Scalar::Util::tainted>
-
-=end :list
-
-=cut
-
 my $assign_aliases;
 
 BEGIN {
@@ -161,20 +109,128 @@ BEGIN {
     );
 }
 
-sub _::prototype ($;$) {
-    if (@_ == 2) {
-        goto &Scalar::Util::set_prototype if @_ == 2;
-    }
-    if (@_ == 1) {
-        my ($coderef) = @_;
-        return prototype $coderef;    # Calls CORE::prototype
-    }
-    else {
-        Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
-    }
+=head2 Scalars
+
+These functions are about manipulating scalars.
+
+=begin :list
+
+= C<$scalar = _::new_dual $num, $str>
+
+wrapper for C<Scalar::Util::dualvar>
+
+= C<$bool = _::is_dual $scalar>
+
+wrapper for C<Scalar::Util::isdual>
+
+= C<$bool = _::is_vstring $scalar>
+
+wrapper for C<Scalar::Util::isvstring>
+
+= C<$bool = _::is_readonly $scalar>
+
+wrapper for C<Scalar::Util::readonly>
+
+= C<$bool = _::is_tainted $scalar>
+
+wrapper for C<Scalar::Util::tainted>
+
+= C<$bool = _::is_plain $_>
+
+Checks that the value is C<defined> and not a reference of any kind.
+This is as close as Perl gets to checking for a string.
+
+= C<$bool = _::is_identifier $_>
+
+Checks that the given string would be a legal identifier:
+a letter followed by zero or more word characters.
+
+= C<$bool = _::is_package $_>
+
+Checks that the given string is a valid package name.
+It only accepts C<Foo::Bar> notation, not the C<Foo'Bar> form.
+This does not assert that the package actually exists.
+
+=end :list
+
+=cut
+
+sub is_plain(_) {
+    defined $_[0]
+        && !defined ref_type $_[0];
 }
 
-=head2 Type Validation Utils
+sub is_identifier(_) {
+    defined $_[0]
+        && scalar($_[0] =~ /\A [^\W\d]\w* \z/x);
+}
+
+sub is_package(_) {
+    defined $_[0]
+        && scalar($_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x);
+}
+
+=head2 Numbers
+
+=begin :list
+
+= C<$bool = _::is_numeric $scalar>
+
+wrapper for C<Scalar::Util::looks_like_number>
+
+= C<$bool = _::is_int $_>
+
+The argument is a plain scalar,
+and its stringification matches a signed integer.
+
+= C<$bool = _::is_uint $_>
+
+Like C<_::is_int>, but the stringification must match an unsigned integer
+(i.e. the number is zero or positive).
+
+=end :list
+
+=cut
+
+sub is_int(_) {
+    defined $_[0]
+        && !defined ref_type $_[0]
+        && scalar($_[0] =~ /\A [-]? [0-9]+ \z/x);
+}
+
+sub is_uint(_) {
+    defined $_[0]
+        && !defined ref_type $_[0]
+        && scalar($_[0] =~ /\A [0-9]+ \z/x);
+}
+
+=head2 References
+
+=begin :list
+
+= C<$int = _::ref_addr $ref>
+
+wrapper for C<Scalar::Util::refaddr>
+
+= C<$str = _::ref_type $ref>
+
+wrapper for C<Scalar::Util::reftype>
+
+= C<_::ref_weaken $ref>
+
+wrapper for C<Scalar::Util::weaken>
+
+= C<_::ref_unweaken $ref>
+
+wrapper for C<Scalar::Util::unweaken>
+
+= C<$bool = _::ref_is_weak $ref>
+
+wrapper for C<Scalar::Util::isweak>
+
+=end :list
+
+=head3 Type Validation
 
 These are inspired from C<Params::Util> and C<Data::Util>.
 
@@ -237,43 +293,19 @@ sub is_regex(_) {
         || overload::Method($_[0], 'qr'));
 }
 
-=pod
-
-An assortment of other validation routines remains.
-A I<simple scalar> is a scalar value which is neither C<undef> nor a reference.
+=head2 Classes and Objects
 
 =begin :list
 
-= C<$bool = _::is_int $_>
+= C<$str = _::blessed $object>
+= C<$str = _::class $object>
 
-The argument is a simple scalar that's neither C<undef> nor a reference,
-and its stringification matches a signed integer.
-
-= C<$bool = _::is_uint $_>
-
-Like C<_::is_int>, but the stringification must match an unsigned integer
-(i.e. the number is zero or positive).
-
-= C<$bool = _::is_plain $_>
-
-Checks that the value is C<defined> and not a reference of any kind.
-This is as close as Perl gets to checking for a string.
-
-= C<$bool = _::is_identifier $_>
-
-Checks that the given string would be a legal identifier:
-a letter followed by zero or more word characters.
-
-= C<$bool = _::is_package $_>
-
-Checks that the given string is a valid package name.
-It only accepts C<Foo::Bar> notation, not the C<Foo'Bar> form.
-This does not assert that the package actually exists.
+wrapper for C<Scalar::Util::blessed>
 
 = C<$bool = _::class_isa $class, $supertype>
 
 Checks that the C<$class> inherits from the given C<$supertype>, both given as strings.
-In most cases, one should use `_::class_does` instead.
+In most cases, one should use C<_::class_does> instead.
 
 = C<$bool = _::class_does $class, $role>
 
@@ -284,36 +316,25 @@ Checks that the C<$class> performs the given C<$role>, both given as strings.
 Checks that the given C<$object> can perform the C<$role>.
 This is essentially equivalent to `_::does`.
 
+= C<$bool = _::isa $object, 'Class'>
+
+wrapper for C<$Safe::Isa::_isa>
+
+= C<$code = _::can $object, 'method'>
+
+wrapper for C<$Safe::Isa::_can>
+
+= C<$bool = _::does $object, 'Role'>
+
+wrapper for C<$Safe::Isa::_DOES>
+
+= C<< any = $maybe_object->_::safecall(method => @args) >>
+
+wrapper for C<$Safe::Isa::_call_if_object>
+
 =end :list
 
 =cut
-
-sub is_int(_) {
-    defined $_[0]
-        && !defined ref_type $_[0]
-        && scalar($_[0] =~ /\A [-]? [0-9]+ \z/x);
-}
-
-sub is_uint(_) {
-    defined $_[0]
-        && !defined ref_type $_[0]
-        && scalar($_[0] =~ /\A [0-9]+ \z/x);
-}
-
-sub is_plain(_) {
-    defined $_[0]
-        && !defined ref_type $_[0];
-}
-
-sub is_identifier(_) {
-    defined $_[0]
-        && scalar($_[0] =~ /\A [^\W\d]\w* \z/x);
-}
-
-sub is_package(_) {
-    defined $_[0]
-        && scalar($_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x);
-}
 
 sub class_isa($$) {
     is_package($_[0])
@@ -328,6 +349,22 @@ sub class_does($$) {
 sub is_instance($$) {
     blessed $_[0]
         && $_[0]->DOES($_[1]);
+}
+
+sub isa($$) {
+    goto &$Safe::Isa::_isa;
+}
+
+sub does($$) {
+    goto &$Safe::Isa::_DOES;
+}
+
+sub can($$) {
+    goto &$Safe::Isa::_can;
+}
+
+sub safecall($$@) {
+    goto &$Safe::Isa::_call_if_object;
 }
 
 =head2 List::Util and List::MoreUtils
@@ -442,75 +479,29 @@ sub zip {
     goto &List::MoreUtils::zip;    # adios, prototypes!
 }
 
-=head2 Carp
+=head2 Exception handling
 
 =begin :list
 
 = C<_::carp "Message">
+
 wrapper for C<Carp::carp>
 
 = C<_::cluck "Message">
+
 wrapper for C<Carp::cluck>
 
 = C<_::croak "Message">
+
 wrapper for C<Carp::croak>
 
 = C<_::confess "Message">
+
 wrapper for C<Carp::confess>
 
 =end :list
 
-=cut
-
-$assign_aliases->(
-    'Carp',
-    carp    => 'carp',
-    cluck   => 'cluck',
-    croak   => 'croak',
-    confess => 'confess',
-);
-
-=head2 UNIVERSAL
-
-...and other goodies from C<Safe::Isa>
-
-=begin :list
-
-= C<$bool = _::isa $object, 'Class'>
-wrapper for C<$Safe::Isa::_isa>
-
-= C<$code = _::can $object, 'method'>
-wrapper for C<$Safe::Isa::_can>
-
-= C<$bool = _::does $object, 'Role'>
-wrapper for C<$Safe::Isa::_DOES>
-
-= C<< any = $maybe_object->_::safecall(method => @args) >>
-wrapper for C<$Safe::Isa::_call_if_object>
-
-=end :list 
-
-=cut
-
-sub isa($$) {
-    goto &$Safe::Isa::_isa;
-}
-
-sub does($$) {
-    goto &$Safe::Isa::_DOES;
-}
-
-sub can($$) {
-    goto &$Safe::Isa::_can;
-}
-
-sub safecall($$@) {
-    goto &$Safe::Isa::_call_if_object;
-}
-
-=head2 Try::Tiny
-
-The following keywords are available:
+The following keywords from C<Try::Tiny> are available:
 
 =for :list
 * C<_::try>
@@ -522,24 +513,38 @@ They are all direct aliases for their namesakes in C<Try::Tiny>.
 =cut
 
 $assign_aliases->(
+    'Carp',
+    carp    => 'carp',
+    cluck   => 'cluck',
+    croak   => 'croak',
+    confess => 'confess',
+);
+
+$assign_aliases->(
     'Try::Tiny',
     try     => 'try',
     catch   => 'catch',
     finally => 'finally',
 );
 
-=head2 Package::Stash
+=head2 Miscellaneous Functions
 
-The C<_::package $str> function will return a new C<Package::Stash> instance.
+=begin :list
 
-=cut
+= C<$fh = _::is_open $fh>
 
-sub package($) {
-    my ($pkg) = @_;
-    return Package::Stash->new($pkg);
-}
+wrapper for C<Scalar::Util::openhandle>
 
-=head2 Data::Dump
+= C<$str = _::prototype \&code>
+= C<_::prototype \&code, $new_proto>
+
+gets or sets the prototype, wrapping either C<CORE::prototype> or C<Scalar::Util::set_prototype>
+
+= C<$instance = _::package $str>
+
+This will construct a new C<Package::Stash> instance.
+
+=end :list
 
 C<Data::Dump> is an alternative to C<Data::Dumper>.
 The main difference is the output format: C<Data::Dump> output tends to be easier to read.
@@ -555,6 +560,24 @@ wrapper for C<Data::Dump::dd>.
 =end :list
 
 =cut
+
+sub _::prototype ($;$) {
+    if (@_ == 2) {
+        goto &Scalar::Util::set_prototype if @_ == 2;
+    }
+    if (@_ == 1) {
+        my ($coderef) = @_;
+        return prototype $coderef;    # Calls CORE::prototype
+    }
+    else {
+        Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
+    }
+}
+
+sub package($) {
+    my ($pkg) = @_;
+    return Package::Stash->new($pkg);
+}
 
 $assign_aliases->(
     'Data::Dump',

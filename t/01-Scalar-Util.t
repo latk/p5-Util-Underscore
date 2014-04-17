@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 14;
 
 use Util::Underscore;
 
@@ -14,13 +14,8 @@ my %aliases = qw/
     ref_weaken      weaken
     ref_unweaken    unweaken
     ref_is_weak     isweak
-    new_dual        dualvar
-    is_dual         isdual
-    is_vstring      isvstring
     is_numeric      looks_like_number
     is_open         openhandle
-    is_readonly     readonly
-    is_tainted      tainted
     /;
 
 while (my ($k, $v) = each %aliases) {

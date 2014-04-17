@@ -3,19 +3,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 7;
 
 use Util::Underscore;
 
-my %aliases = qw/
-    class           blessed
-    is_open         openhandle
-    /;
-
-while (my ($k, $v) = each %aliases) {
-    no strict 'refs';
-    ok \&{"_::$k"} == \&{"Scalar::Util::$v"}, "_::$k == Scalar::Util::$v";
-}
+ok \&_::is_open == \&Scalar::Util::openhandle, "_::is_open";
 
 # Test _::prototype
 

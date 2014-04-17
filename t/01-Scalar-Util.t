@@ -3,17 +3,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 8;
 
 use Util::Underscore;
 
 my %aliases = qw/
     class           blessed
-    ref_addr        refaddr
-    ref_type        reftype
-    ref_weaken      weaken
-    ref_unweaken    unweaken
-    ref_is_weak     isweak
     is_open         openhandle
     /;
 

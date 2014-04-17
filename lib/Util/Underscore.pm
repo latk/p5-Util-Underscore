@@ -305,7 +305,7 @@ wrapper for C<Scalar::Util::blessed>
 = C<$bool = _::class_isa $class, $supertype>
 
 Checks that the C<$class> inherits from the given C<$supertype>, both given as strings.
-In most cases, one should use `_::class_does` instead.
+In most cases, one should use C<_::class_does> instead.
 
 = C<$bool = _::class_does $class, $role>
 

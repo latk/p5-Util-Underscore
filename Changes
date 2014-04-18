@@ -1,5 +1,36 @@
+v1.1.0
+     *  Reorganized documentation
+
+        The docs are now organized by topic, instead of by source module. In the
+        same vein, the tests were improved.
+
+     *  Improved prototypes for many functions
+
+        Nearly all single argument functions now default to "$_" as their arg.
+        This makes their usage in "map" or "grep" more convenient, e.g.
+
+            @classes = map _::class, @objects
+
+     *  Added the "carpf" family of functions for formatted error messages
+
+     *  Added "Data::Dump" functions
+
+     *  Added "_::is_object", "_::is_instance", "_::class_can"
+
+     *  Added various type checking functions
+
+         *  reference validation: is_ref, is_scalar_ref, is_array_ref,
+            is_hash_ref, is_code_ref, is_glob_ref, is_regex.
+         *  numeric validation: is_int, is_uint.
+         *  other functions: is_plain, is_identifier, is_package.
+
+     *  Removed dependency on "Safe::Isa", as we can do the same thing with less
+        overhead
+
+     *  Various optimizations were merged from DOLMEN
+
 v1.0.1
-    * fixed bugs that prevented installation on older perls
+     *  fixed bugs that prevented installation on older perls
 
 v1.0.0
     initial release

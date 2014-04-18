@@ -4,21 +4,16 @@ package Util::Underscore;
 
 use strict;
 use warnings;
-no warnings 'once';
 
-use version 0.77 (); our $VERSION = version->declare('v1.0.1');
+use version 0.77; our $VERSION = qv('v1.1.0');
 
 use Scalar::Util 1.36    ();
 use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
-use Carp ();
-use Safe::Isa 1.000000 ();
-use Try::Tiny      ();
-use Package::Stash ();
-use Data::Dump     ();
-use overload       ();
-
-## no critic ProhibitSubroutinePrototypes
+use Carp       ();
+use Try::Tiny  ();
+use Data::Dump ();
+use overload   ();
 
 =pod
 
@@ -39,12 +34,11 @@ This allows the use of these utilities (a) without much per-usage overhead and (
 It contains functions from the following modules:
 
 =for :list
-* L<Scalar::Util>
-* L<List::Util>
-* L<List::MoreUtils>
-* L<Carp>
-* L<Safe::Isa>, which contains convenience functions for L<UNIVERSAL>
-* L<Try::Tiny>
+* L<Scalar::Util|Scalar::Util>
+* L<List::Util|List::Util>
+* L<List::MoreUtils|List::MoreUtils>
+* L<Carp|Carp>
+* L<Try::Tiny|Try::Tiny>
 
 Not all functions from those are available, and some have been renamed.
 
@@ -62,9 +56,25 @@ BEGIN {
     # Just setting the ${INC} entry would fail too silently,
     # so we also rigged the "import" method.
 
+    ## no critic (RequireLocalizedPunctuationVars)
     $INC{'_.pm'} = *_::import = sub {
         Carp::confess qq(The "_" package is internal to Util::Underscore)
             . qq(and must not be imported directly.\n);
+    };
+}
+
+my $assign_aliases;
+
+BEGIN {
+    $assign_aliases = sub {
+        my ($pkg, %aliases) = @_;
+        no strict 'refs';    ## no critic (ProhibitNoStrict)
+        while (my ($this, $that) = each %aliases) {
+            my $target = "_::${this}";
+            my $source = "${pkg}::${that}";
+            *{$target} = *{$source}{CODE}
+                // Carp::croak "Unknown subroutine $source in assign_aliases";
+        }
     };
 }
 
@@ -72,42 +82,16 @@ BEGIN {
 
 =cut
 
-# From now, every function is in the _ package
+# From now, every function is in the "_" package
+## no critic (ProhibitMultiplePackages)
 package    # Hide from PAUSE
     _;
 
-my $assign_aliases;
+## no critic (RequireArgUnpacking, RequireFinalReturn, ProhibitSubroutinePrototypes)
 
-BEGIN {
-    $assign_aliases = sub {
-        my ($pkg, %aliases) = @_;
-        no strict 'refs';    ## no critic ProhibitNoStrict
-        while (my ($this, $that) = each %aliases) {
-            *{ '_::' . $this } = *{ $pkg . '::' . $that }{CODE}
-                // die "Unknown subroutine ${pkg}::${that}";
-        }
-    };
-
-    # Inject immediately during compile because we want to use unprefixed subs
-    # in our other subs definitions below.
-    $assign_aliases->(
-        'Scalar::Util',
-        class        => 'blessed',
-        blessed      => 'blessed',
-        ref_addr     => 'refaddr',
-        ref_type     => 'reftype',
-        ref_weaken   => 'weaken',
-        ref_unweaken => 'unweaken',
-        ref_is_weak  => 'isweak',
-        new_dual     => 'dualvar',
-        is_dual      => 'isdual',
-        is_vstring   => 'isvstring',
-        is_numeric   => 'looks_like_number',
-        is_open      => 'openhandle',
-        is_readonly  => 'readonly',
-        is_tainted   => 'tainted',
-    );
-}
+# Predeclare a few things so that we can use them in the sub definitions below.
+sub blessed(_);
+sub ref_type(_);
 
 =head2 Scalars
 
@@ -119,19 +103,19 @@ These functions are about manipulating scalars.
 
 wrapper for C<Scalar::Util::dualvar>
 
-= C<$bool = _::is_dual $scalar>
+= C<$bool = _::is_dual $_>
 
 wrapper for C<Scalar::Util::isdual>
 
-= C<$bool = _::is_vstring $scalar>
+= C<$bool = _::is_vstring $_>
 
 wrapper for C<Scalar::Util::isvstring>
 
-= C<$bool = _::is_readonly $scalar>
+= C<$bool = _::is_readonly $_>
 
 wrapper for C<Scalar::Util::readonly>
 
-= C<$bool = _::is_tainted $scalar>
+= C<$bool = _::is_tainted $_>
 
 wrapper for C<Scalar::Util::tainted>
 
@@ -155,6 +139,24 @@ This does not assert that the package actually exists.
 
 =cut
 
+$assign_aliases->('Scalar::Util', new_dual => 'dualvar',);
+
+sub is_dual(_) {
+    goto &Scalar::Util::isdual;
+}
+
+sub is_vstring(_) {
+    goto &Scalar::Util::isvstring;
+}
+
+sub is_readonly(_) {
+    goto &Scalar::Util::readonly;
+}
+
+sub is_tainted (_) {
+    goto &Scalar::Util::tainted;
+}
+
 sub is_plain(_) {
     defined $_[0]
         && !defined ref_type $_[0];
@@ -162,19 +164,19 @@ sub is_plain(_) {
 
 sub is_identifier(_) {
     defined $_[0]
-        && scalar($_[0] =~ /\A [^\W\d]\w* \z/x);
+        && scalar($_[0] =~ /\A [^\W\d]\w* \z/xsm);
 }
 
 sub is_package(_) {
     defined $_[0]
-        && scalar($_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x);
+        && scalar($_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/xsm);
 }
 
 =head2 Numbers
 
 =begin :list
 
-= C<$bool = _::is_numeric $scalar>
+= C<$bool = _::is_numeric $_>
 
 wrapper for C<Scalar::Util::looks_like_number>
 
@@ -192,39 +194,45 @@ Like C<_::is_int>, but the stringification must match an unsigned integer
 
 =cut
 
+sub is_numeric(_) {
+    goto &Scalar::Util::looks_like_number;
+}
+
 sub is_int(_) {
+    ## no critic (ProhibitEnumeratedClasses)
     defined $_[0]
         && !defined ref_type $_[0]
-        && scalar($_[0] =~ /\A [-]? [0-9]+ \z/x);
+        && scalar($_[0] =~ /\A [-]? [0-9]+ \z/xsm);
 }
 
 sub is_uint(_) {
+    ## no critic (ProhibitEnumeratedClasses)
     defined $_[0]
         && !defined ref_type $_[0]
-        && scalar($_[0] =~ /\A [0-9]+ \z/x);
+        && scalar($_[0] =~ /\A [0-9]+ \z/xsm);
 }
 
 =head2 References
 
 =begin :list
 
-= C<$int = _::ref_addr $ref>
+= C<$int = _::ref_addr $_>
 
 wrapper for C<Scalar::Util::refaddr>
 
-= C<$str = _::ref_type $ref>
+= C<$str = _::ref_type $_>
 
 wrapper for C<Scalar::Util::reftype>
 
-= C<_::ref_weaken $ref>
+= C<_::ref_weaken $_>
 
 wrapper for C<Scalar::Util::weaken>
 
-= C<_::ref_unweaken $ref>
+= C<_::ref_unweaken $_>
 
 wrapper for C<Scalar::Util::unweaken>
 
-= C<$bool = _::ref_is_weak $ref>
+= C<$bool = _::ref_is_weak $_>
 
 wrapper for C<Scalar::Util::isweak>
 
@@ -250,6 +258,26 @@ It will not be checked that an object claims to perform an appropriate role (e.g
 * C<_::is_regex> (note that regexes are blessed objects, not plain references)
 
 =cut
+
+sub ref_addr(_) {
+    goto &Scalar::Util::refaddr;
+}
+
+sub ref_type(_) {
+    goto &Scalar::Util::reftype;
+}
+
+sub ref_weaken(_) {
+    goto &Scalar::Util::weaken;
+}
+
+sub ref_unweaken(_) {
+    goto &Scalar::Util::unweaken;
+}
+
+sub ref_is_weak(_) {
+    goto &Scalar::Util::isweak;
+}
 
 sub is_ref(_) {
     defined($_[0])
@@ -297,10 +325,15 @@ sub is_regex(_) {
 
 =begin :list
 
-= C<$str = _::blessed $object>
-= C<$str = _::class $object>
+= C<$str = _::blessed $_>
+= C<$str = _::class $_>
 
 wrapper for C<Scalar::Util::blessed>
+
+= C<$bool = _::is_object $_>
+
+Checks that the argument is a blessed object.
+It's just an abbreviation for C<defined _::blessed $_>
 
 = C<$bool = _::class_isa $class, $supertype>
 
@@ -311,30 +344,48 @@ In most cases, one should use C<_::class_does> instead.
 
 Checks that the C<$class> performs the given C<$role>, both given as strings.
 
-= C<$bool = _::is_instance $object, $role>
+= C<$bool = _::isa $object, $class>
 
-Checks that the given C<$object> can perform the C<$role>.
-This is essentially equivalent to `_::does`.
-
-= C<$bool = _::isa $object, 'Class'>
-
-wrapper for C<$Safe::Isa::_isa>
+Checks that the C<$object> inherits from the given class.
+In most cases, one should use C<_::does> or C<_::is_instance> instead.
 
 = C<$code = _::can $object, 'method'>
 
-wrapper for C<$Safe::Isa::_can>
+Checks that the given C<$object> can perform the C<method>.
+Returns C<undef> on failure, or the appropriate code ref on success,
+so that one can do C<< $object->$code(@args) >> afterwards.
 
-= C<$bool = _::does $object, 'Role'>
+= C<$bool = _::is_instance $object, $role>
 
-wrapper for C<$Safe::Isa::_DOES>
+= C<$bool = _::does $object, $role>
+
+Checks that the given C<$object> can perform the C<$role>.
 
 = C<< any = $maybe_object->_::safecall(method => @args) >>
 
-wrapper for C<$Safe::Isa::_call_if_object>
+This will call the C<method> only if the C<$maybe_object> is a blessed object.
+We do not check that the object C<can> perform the method, so this might still raise an exception.
+
+Context is propagated correctly to the method call.
+If the C<$maybe_object> is not an object, this will simply return.
+In scalar context, this evaluates to C<undef>, in list context this is the empty list.
 
 =end :list
 
 =cut
+
+sub blessed(_) {
+    goto &Scalar::Util::blessed;
+}
+
+{
+    no warnings 'once';    ## no critic (ProhibitNoWarnings)
+    *class = \&blessed;
+}
+
+sub is_object(_) {
+    defined blessed $_[0];
+}
 
 sub class_isa($$) {
     is_package($_[0])
@@ -346,25 +397,36 @@ sub class_does($$) {
         && $_[0]->DOES($_[1]);
 }
 
-sub is_instance($$) {
+sub class_can($$) {
+    is_package($_[0])
+        && $_[0]->can($_[1]);
+}
+
+sub isa($$) {
+    blessed $_[0]
+        && $_[0]->isa($_[1]);
+}
+
+sub does($$) {
     blessed $_[0]
         && $_[0]->DOES($_[1]);
 }
 
-sub isa($$) {
-    goto &$Safe::Isa::_isa;
-}
-
-sub does($$) {
-    goto &$Safe::Isa::_DOES;
+{
+    no warnings 'once';    ## no critic (ProhibitNoWarnings)
+    *is_instance = \&does;
 }
 
 sub can($$) {
-    goto &$Safe::Isa::_can;
+    blessed $_[0]
+        && $_[0]->can($_[1]);
 }
 
 sub safecall($$@) {
-    goto &$Safe::Isa::_call_if_object;
+    my $self = shift;
+    my $meth = shift;
+    return if not blessed $self;
+    $self->$meth(@_);
 }
 
 =head2 List::Util and List::MoreUtils
@@ -481,27 +543,26 @@ sub zip {
 
 =head2 Exception handling
 
-=begin :list
+The functions C<_::carp>, C<_::cluck>, C<_::croak>, and C<_::confess> from the C<Carp> module are available.
+They all take a list of strings as argument.
+How do they differ from each other?
 
-= C<_::carp "Message">
+    Stack Trace || Fatal    | Warning
+    ------------##====================
+        No      || croak    | carp
+        Yes     || confess  | cluck
 
-wrapper for C<Carp::carp>
+How do they differ from Perl's builtin C<die> and C<warn>?
+The error messages of C<die> and C<warn> are located on the line where the exception is raised.
+This makes debugging hard when the error points to some internal function of a module you are using,
+as this provides no information on where your client code made a mistake.
+The C<Carp> family of error functions report the error from the point of usage, and optionally provide stack traces.
+If you write a module, please use the C<Carp> functions instead of plain C<die>.
 
-= C<_::cluck "Message">
+Additionally, the variants C<_::carpf>, C<_::cluckf>, C<_::croakf>, and C<_::confessf> are provided.
+These take a C<sprintf> patterns as first argument: C<_::carpf "pattern", @arguments>.
 
-wrapper for C<Carp::cluck>
-
-= C<_::croak "Message">
-
-wrapper for C<Carp::croak>
-
-= C<_::confess "Message">
-
-wrapper for C<Carp::confess>
-
-=end :list
-
-The following keywords from C<Try::Tiny> are available:
+To handle errors, the following keywords from C<Try::Tiny> are available:
 
 =for :list
 * C<_::try>
@@ -512,13 +573,15 @@ They are all direct aliases for their namesakes in C<Try::Tiny>.
 
 =cut
 
-$assign_aliases->(
-    'Carp',
-    carp    => 'carp',
-    cluck   => 'cluck',
-    croak   => 'croak',
-    confess => 'confess',
-);
+BEGIN {
+    $assign_aliases->(
+        'Carp',
+        carp    => 'carp',
+        cluck   => 'cluck',
+        croak   => 'croak',
+        confess => 'confess',
+    );
+}
 
 $assign_aliases->(
     'Try::Tiny',
@@ -526,6 +589,30 @@ $assign_aliases->(
     catch   => 'catch',
     finally => 'finally',
 );
+
+sub carpf($@) {
+    my $pattern = shift;
+    @_ = sprintf $pattern, @_;
+    goto &carp;
+}
+
+sub cluckf($@) {
+    my $pattern = shift;
+    @_ = sprintf $pattern, @_;
+    goto &cluck;
+}
+
+sub croakf($@) {
+    my $pattern = shift;
+    @_ = sprintf $pattern, @_;
+    goto &croak;
+}
+
+sub confessf($@) {
+    my $pattern = shift;
+    @_ = sprintf $pattern, @_;
+    goto &confess;
+}
 
 =head2 Miscellaneous Functions
 
@@ -561,6 +648,8 @@ wrapper for C<Data::Dump::dd>.
 
 =cut
 
+$assign_aliases->('Scalar::Util', is_open => 'openhandle',);
+
 sub _::prototype ($;$) {
     if (@_ == 2) {
         goto &Scalar::Util::set_prototype if @_ == 2;
@@ -570,13 +659,8 @@ sub _::prototype ($;$) {
         return prototype $coderef;    # Calls CORE::prototype
     }
     else {
-        Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
+        Carp::confess '_::prototype($;$) takes exactly one or two arguments';
     }
-}
-
-sub package($) {
-    my ($pkg) = @_;
-    return Package::Stash->new($pkg);
 }
 
 $assign_aliases->(
@@ -590,8 +674,9 @@ $assign_aliases->(
 The following modules were once considered for inclusion or were otherwise influental in the design of this collection:
 
 =for :list
-* L<Data::Util>
-* L<Params::Util>
+* L<Data::Util|Data::Util>
+* L<Params::Util|Params::Util>
+* L<Safe::Isa|Safe::Isa>
 
 =cut
 

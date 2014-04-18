@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 2;
 
 use Util::Underscore;
 
@@ -11,8 +11,8 @@ subtest 'identity tests' => sub {
 
     ok \&_::is_open == \&Scalar::Util::openhandle, "_::is_open";
 
-    is \&_::pp, \&Data::Dump::pp,   "_::pp";
-    is \&_::dd, \&Data::Dump::dd,   "_::dd";
+    is \&_::pp, \&Data::Dump::pp, "_::pp";
+    is \&_::dd, \&Data::Dump::dd, "_::dd";
 };
 
 sub foo { die "unimplemented" }
@@ -35,11 +35,4 @@ subtest '_::prototype' => sub {
 
     ok + (not defined _::prototype \&foo), 'sub prototype empty again';
     ok + (not defined _::prototype $foo), 'coderef prototype empty again';
-};
-
-subtest '_::package' => sub {
-    plan tests => 2;
-    my $bar = _::package 'Local::Bar';
-    isa_ok $bar, 'Package::Stash';
-    is $bar->name, 'Local::Bar';
 };

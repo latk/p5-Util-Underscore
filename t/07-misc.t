@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 2;
 
 use Util::Underscore;
 
@@ -35,11 +35,4 @@ subtest '_::prototype' => sub {
 
     ok + (not defined _::prototype \&foo), 'sub prototype empty again';
     ok + (not defined _::prototype $foo), 'coderef prototype empty again';
-};
-
-subtest '_::package' => sub {
-    plan tests => 2;
-    my $bar = _::package 'Local::Bar';
-    isa_ok $bar, 'Package::Stash';
-    is $bar->name, 'Local::Bar';
 };

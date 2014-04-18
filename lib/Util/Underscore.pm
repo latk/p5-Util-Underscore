@@ -12,9 +12,7 @@ use Scalar::Util 1.36    ();
 use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
 use Carp ();
-use Safe::Isa 1.000000 ();
 use Try::Tiny      ();
-use Package::Stash ();
 use Data::Dump     ();
 use overload       ();
 
@@ -623,11 +621,6 @@ sub _::prototype ($;$) {
     else {
         Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
     }
-}
-
-sub package($) {
-    my ($pkg) = @_;
-    return Package::Stash->new($pkg);
 }
 
 $assign_aliases->(

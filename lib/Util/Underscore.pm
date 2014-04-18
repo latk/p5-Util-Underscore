@@ -11,10 +11,10 @@ use version 0.77 (); our $VERSION = version->declare('v1.0.1');
 use Scalar::Util 1.36    ();
 use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
-use Carp ();
-use Try::Tiny      ();
-use Data::Dump     ();
-use overload       ();
+use Carp       ();
+use Try::Tiny  ();
+use Data::Dump ();
+use overload   ();
 
 ## no critic ProhibitSubroutinePrototypes
 
@@ -95,12 +95,8 @@ BEGIN {
         ref_unweaken => 'unweaken',
         ref_is_weak  => 'isweak',
         new_dual     => 'dualvar',
-        is_dual      => 'isdual',
-        is_vstring   => 'isvstring',
         is_numeric   => 'looks_like_number',
         is_open      => 'openhandle',
-        is_readonly  => 'readonly',
-        is_tainted   => 'tainted',
     );
 }
 
@@ -158,6 +154,22 @@ This does not assert that the package actually exists.
 =end :list
 
 =cut
+
+sub is_dual(_) {
+    goto &Scalar::Util::isdual;
+}
+
+sub is_vstring(_) {
+    goto &Scalar::Util::isvstring;
+}
+
+sub is_readonly(_) {
+    goto &Scalar::Util::readonly;
+}
+
+sub is_tainted (_) {
+    goto &Scalar::Util::tainted;
+}
 
 sub is_plain(_) {
     defined $_[0]

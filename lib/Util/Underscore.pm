@@ -4,7 +4,6 @@ package Util::Underscore;
 
 use strict;
 use warnings;
-no warnings 'once';
 
 use version 0.77 (); our $VERSION = version->declare('v1.0.1');
 
@@ -84,30 +83,11 @@ BEGIN {
                 // die "Unknown subroutine ${pkg}::${that}";
         }
     };
-
-    # Inject immediately during compile because we want to use unprefixed subs
-    # in our other subs definitions below.
-    $assign_aliases->(
-        'Scalar::Util',
-        ref_addr     => 'refaddr',
-        ref_type     => 'reftype',
-        ref_weaken   => 'weaken',
-        ref_unweaken => 'unweaken',
-        ref_is_weak  => 'isweak',
-        new_dual     => 'dualvar',
-        is_numeric   => 'looks_like_number',
-        is_open      => 'openhandle',
-    );
 }
 
-sub blessed(_) {
-    goto &Scalar::Util::blessed;
-}
-
-{
-    no warnings 'once';
-    *class = \&blessed;
-}
+# Predeclare a few things so that we can use them in the sub definitions below.
+sub blessed(_);
+sub ref_type(_);
 
 =head2 Scalars
 
@@ -154,6 +134,8 @@ This does not assert that the package actually exists.
 =end :list
 
 =cut
+
+$assign_aliases->('Scalar::Util', new_dual => 'dualvar',);
 
 sub is_dual(_) {
     goto &Scalar::Util::isdual;
@@ -207,6 +189,10 @@ Like C<_::is_int>, but the stringification must match an unsigned integer
 =end :list
 
 =cut
+
+sub is_numeric(_) {
+    goto &Scalar::Util::looks_like_number;
+}
 
 sub is_int(_) {
     defined $_[0]
@@ -266,6 +252,26 @@ It will not be checked that an object claims to perform an appropriate role (e.g
 * C<_::is_regex> (note that regexes are blessed objects, not plain references)
 
 =cut
+
+sub ref_addr(_) {
+    goto &Scalar::Util::refaddr;
+}
+
+sub ref_type(_) {
+    goto &Scalar::Util::reftype;
+}
+
+sub ref_weaken(_) {
+    goto &Scalar::Util::weaken;
+}
+
+sub ref_unweaken(_) {
+    goto &Scalar::Util::unweaken;
+}
+
+sub ref_is_weak(_) {
+    goto &Scalar::Util::isweak;
+}
 
 sub is_ref(_) {
     defined($_[0])
@@ -356,6 +362,15 @@ wrapper for C<$Safe::Isa::_call_if_object>
 =end :list
 
 =cut
+
+sub blessed(_) {
+    goto &Scalar::Util::blessed;
+}
+
+{
+    no warnings 'once';
+    *class = \&blessed;
+}
 
 sub is_object(_) {
     defined blessed $_[0];
@@ -621,6 +636,8 @@ wrapper for C<Data::Dump::dd>.
 =end :list
 
 =cut
+
+$assign_aliases->('Scalar::Util', is_open => 'openhandle',);
 
 sub _::prototype ($;$) {
     if (@_ == 2) {

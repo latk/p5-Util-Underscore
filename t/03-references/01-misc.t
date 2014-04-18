@@ -3,18 +3,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 3;
 
 use Util::Underscore;
-
-subtest 'identity tests' => sub {
-    plan tests => 5;
-    is \&_::ref_addr,     \&Scalar::Util::refaddr,  "_::ref_addr";
-    is \&_::ref_type,     \&Scalar::Util::reftype,  "_::ref_type";
-    is \&_::ref_weaken,   \&Scalar::Util::weaken,   "_::ref_weaken";
-    is \&_::ref_unweaken, \&Scalar::Util::unweaken, "_::ref_unweaken";
-    is \&_::ref_is_weak,  \&Scalar::Util::isweak,   "_::ref_is_weak";
-};
 
 BEGIN {
 
@@ -28,7 +19,7 @@ BEGIN {
 }
 
 subtest '_::ref_addr' => sub {
-    plan tests => 5;
+    plan tests => 7;
     my $ref  = [];
     my $addr = 0 + $ref;
 
@@ -40,10 +31,13 @@ subtest '_::ref_addr' => sub {
 
     ok !defined _::ref_addr undef, "negative undef";
     ok !defined _::ref_addr "foo", "negative string";
+
+    is _::ref_addr, $addr, "positive default argument" for $ref;
+    ok !defined _::ref_addr, "negative default argument" for undef;
 };
 
 subtest '_::ref_type' => sub {
-    plan tests => 5;
+    plan tests => 7;
     is _::ref_type [], 'ARRAY', "positive simple ref";
 
     my $object = bless [], "Foo";
@@ -52,10 +46,13 @@ subtest '_::ref_type' => sub {
 
     ok !defined _::ref_type undef, "negative undef";
     ok !defined _::ref_type "foo", "negative string";
+
+    is _::ref_type, 'ARRAY', "positive default argument" for [];
+    ok !defined _::ref_type, "negative default argument" for undef;
 };
 
 subtest 'weak refs' => sub {
-    plan tests => 8;
+    plan tests => 9;
     my $ref = \do { my $o };
 
     subtest 'sanity check' => sub {
@@ -94,4 +91,17 @@ subtest 'weak refs' => sub {
 
     # $value dropped to refcount 0, is reclaimed
     ok !defined $weak_ref, "stale weak ref is undef";
+
+    subtest 'default argument' => sub {
+        plan tests => 3;
+        my $ref      = [];     # needed to avoid garbage collection
+        my $weak_ref = $ref;
+        for ($weak_ref) {
+            ok !_::ref_is_weak, "negative _::ref_is_weak";
+            _::ref_weaken;
+            ok _::ref_is_weak, "positive _::ref_is_weak";
+            _::ref_unweaken;
+            ok !_::ref_is_weak, "negative _::ref_is_weak";
+        }
+    };
 };

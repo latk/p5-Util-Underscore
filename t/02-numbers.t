@@ -3,14 +3,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 3;
 
 use Util::Underscore;
-
-subtest 'identity tests' => sub {
-    plan tests => 1;
-    is \&_::is_numeric, \&Scalar::Util::looks_like_number, "_::is_numeric";
-};
 
 BEGIN {
 
@@ -28,7 +23,7 @@ BEGIN {
 }
 
 subtest '_::is_numeric' => sub {
-    plan tests => 5;
+    plan tests => 6;
     my $numy_good = Local::Numeric->new(42);
     my $numy_bad  = Local::Numeric->new("foo");
 
@@ -75,6 +70,12 @@ subtest '_::is_numeric' => sub {
         plan tests => 2;
         ok !_::is_numeric $numy_bad, "negative overloaded object";
         ok _::is_numeric $numy_good, "positive overloaded object";
+    };
+
+    subtest 'implicit argument' => sub {
+        plan tests => 2;
+        ok _::is_numeric,  "positive" for 42;
+        ok !_::is_numeric, "negative" for undef;
     };
 };
 

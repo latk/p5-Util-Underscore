@@ -5,7 +5,7 @@ package Util::Underscore;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('v1.1.0');
+use version 0.77; our $VERSION = qv('v1.1.1');
 
 use Scalar::Util 1.36    ();
 use List::Util 1.35      ();

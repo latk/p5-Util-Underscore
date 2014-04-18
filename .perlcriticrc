@@ -1,0 +1,7 @@
+pager = less -R
+color = 1
+
+[ControlStructures::ProhibitPostfixControls]
+allow = if for
+
+[-ValuesAndExpressions::ProhibitInterpolationOfLiterals]

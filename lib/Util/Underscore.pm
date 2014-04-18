@@ -5,7 +5,7 @@ package Util::Underscore;
 use strict;
 use warnings;
 
-use version 0.77 (); our $VERSION = version->declare('v1.1.0');
+use version 0.77; our $VERSION = qv('v1.1.0');
 
 use Scalar::Util 1.36    ();
 use List::Util 1.35      ();
@@ -14,8 +14,6 @@ use Carp       ();
 use Try::Tiny  ();
 use Data::Dump ();
 use overload   ();
-
-## no critic ProhibitSubroutinePrototypes
 
 =pod
 
@@ -36,11 +34,11 @@ This allows the use of these utilities (a) without much per-usage overhead and (
 It contains functions from the following modules:
 
 =for :list
-* L<Scalar::Util>
-* L<List::Util>
-* L<List::MoreUtils>
-* L<Carp>
-* L<Try::Tiny>
+* L<Scalar::Util|Scalar::Util>
+* L<List::Util|List::Util>
+* L<List::MoreUtils|List::MoreUtils>
+* L<Carp|Carp>
+* L<Try::Tiny|Try::Tiny>
 
 Not all functions from those are available, and some have been renamed.
 
@@ -58,9 +56,25 @@ BEGIN {
     # Just setting the ${INC} entry would fail too silently,
     # so we also rigged the "import" method.
 
+    ## no critic (RequireLocalizedPunctuationVars)
     $INC{'_.pm'} = *_::import = sub {
         Carp::confess qq(The "_" package is internal to Util::Underscore)
             . qq(and must not be imported directly.\n);
+    };
+}
+
+my $assign_aliases;
+
+BEGIN {
+    $assign_aliases = sub {
+        my ($pkg, %aliases) = @_;
+        no strict 'refs';    ## no critic (ProhibitNoStrict)
+        while (my ($this, $that) = each %aliases) {
+            my $target = "_::${this}";
+            my $source = "${pkg}::${that}";
+            *{$target} = *{$source}{CODE}
+                // Carp::croak "Unknown subroutine $source in assign_aliases";
+        }
     };
 }
 
@@ -68,22 +82,12 @@ BEGIN {
 
 =cut
 
-# From now, every function is in the _ package
+# From now, every function is in the "_" package
+## no critic (ProhibitMultiplePackages)
 package    # Hide from PAUSE
     _;
 
-my $assign_aliases;
-
-BEGIN {
-    $assign_aliases = sub {
-        my ($pkg, %aliases) = @_;
-        no strict 'refs';    ## no critic ProhibitNoStrict
-        while (my ($this, $that) = each %aliases) {
-            *{ '_::' . $this } = *{ $pkg . '::' . $that }{CODE}
-                // die "Unknown subroutine ${pkg}::${that}";
-        }
-    };
-}
+## no critic (RequireArgUnpacking, RequireFinalReturn, ProhibitSubroutinePrototypes)
 
 # Predeclare a few things so that we can use them in the sub definitions below.
 sub blessed(_);
@@ -160,12 +164,12 @@ sub is_plain(_) {
 
 sub is_identifier(_) {
     defined $_[0]
-        && scalar($_[0] =~ /\A [^\W\d]\w* \z/x);
+        && scalar($_[0] =~ /\A [^\W\d]\w* \z/xsm);
 }
 
 sub is_package(_) {
     defined $_[0]
-        && scalar($_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/x);
+        && scalar($_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/xsm);
 }
 
 =head2 Numbers
@@ -195,15 +199,17 @@ sub is_numeric(_) {
 }
 
 sub is_int(_) {
+    ## no critic (ProhibitEnumeratedClasses)
     defined $_[0]
         && !defined ref_type $_[0]
-        && scalar($_[0] =~ /\A [-]? [0-9]+ \z/x);
+        && scalar($_[0] =~ /\A [-]? [0-9]+ \z/xsm);
 }
 
 sub is_uint(_) {
+    ## no critic (ProhibitEnumeratedClasses)
     defined $_[0]
         && !defined ref_type $_[0]
-        && scalar($_[0] =~ /\A [0-9]+ \z/x);
+        && scalar($_[0] =~ /\A [0-9]+ \z/xsm);
 }
 
 =head2 References
@@ -373,7 +379,7 @@ sub blessed(_) {
 }
 
 {
-    no warnings 'once';
+    no warnings 'once';    ## no critic (ProhibitNoWarnings)
     *class = \&blessed;
 }
 
@@ -407,7 +413,7 @@ sub does($$) {
 }
 
 {
-    no warnings 'once';
+    no warnings 'once';    ## no critic (ProhibitNoWarnings)
     *is_instance = \&does;
 }
 
@@ -419,7 +425,7 @@ sub can($$) {
 sub safecall($$@) {
     my $self = shift;
     my $meth = shift;
-    return unless blessed $self;
+    return if not blessed $self;
     $self->$meth(@_);
 }
 
@@ -653,7 +659,7 @@ sub _::prototype ($;$) {
         return prototype $coderef;    # Calls CORE::prototype
     }
     else {
-        Carp::confess '_::prototype(&;$) takes exactly one or two arguments';
+        Carp::confess '_::prototype($;$) takes exactly one or two arguments';
     }
 }
 
@@ -668,9 +674,9 @@ $assign_aliases->(
 The following modules were once considered for inclusion or were otherwise influental in the design of this collection:
 
 =for :list
-* L<Data::Util>
-* L<Params::Util>
-* L<Safe::Isa>
+* L<Data::Util|Data::Util>
+* L<Params::Util|Params::Util>
+* L<Safe::Isa|Safe::Isa>
 
 =cut
 

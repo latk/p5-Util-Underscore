@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 11;
 
 use Util::Underscore;
 
@@ -53,9 +53,10 @@ subtest 'fixtures' => sub {
 };
 
 subtest 'identity tests' => sub {
-    plan tests => 1;
+    plan tests => 2;
 
-    is \&_::class, \&_::blessed, "_::class";
+    is \&_::class,       \&_::blessed, "_::class";
+    is \&_::is_instance, \&_::does,    "_::is_instance";
 };
 
 subtest '_::blessed' => sub {
@@ -135,16 +136,6 @@ subtest '_::class_does' => sub {
     ok !_::class_does($class{unrelated}, $class{parent}), "negative unrelated";
 };
 
-subtest '_::is_instance' => sub {
-    plan tests => 4;
-
-    ok _::is_instance($object{parent}, $class{parent}), "positive parent";
-    ok _::is_instance($object{child},  $class{parent}), "positive child";
-    ok _::is_instance($object{mock},   $class{parent}), "positive mock";
-    ok !_::is_instance($object{unrelated}, $class{parent}),
-        "negative unrelated";
-};
-
 subtest '_::class_can' => sub {
     plan tests => 4;
 
@@ -182,15 +173,19 @@ subtest '_::can' => sub {
 };
 
 subtest '_::safecall' => sub {
-    plan tests => 6 + (keys %object);
+    plan tests => 8 + (keys %object);
 
     for (keys %object) {
         is _::safecall($object{$_}, meth => "foo"), "foo", "positive $_";
     }
 
     ok !defined _::safecall(undef, meth => "foo"), "negative undef";
-    ok !defined _::safecall("bar", meth => "foo"), "negative undef";
-    ok !defined _::safecall(42,    meth => "foo"), "negative undef";
+    ok !defined _::safecall("bar", meth => "foo"), "negative string";
+    ok !defined _::safecall(42,    meth => "foo"), "negative number";
+    ok !defined _::safecall([],    meth => "foo"), "negative reference";
+
+    my @ret = _::safecall(undef, meth => "foo");
+    ok @ret == 0, "negative response in list context";
 
     # However, safecall only asserts that the invocant is an object
     #  * It does not allow packages, and

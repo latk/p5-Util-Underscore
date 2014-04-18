@@ -99,19 +99,19 @@ These functions are about manipulating scalars.
 
 wrapper for C<Scalar::Util::dualvar>
 
-= C<$bool = _::is_dual $scalar>
+= C<$bool = _::is_dual $_>
 
 wrapper for C<Scalar::Util::isdual>
 
-= C<$bool = _::is_vstring $scalar>
+= C<$bool = _::is_vstring $_>
 
 wrapper for C<Scalar::Util::isvstring>
 
-= C<$bool = _::is_readonly $scalar>
+= C<$bool = _::is_readonly $_>
 
 wrapper for C<Scalar::Util::readonly>
 
-= C<$bool = _::is_tainted $scalar>
+= C<$bool = _::is_tainted $_>
 
 wrapper for C<Scalar::Util::tainted>
 
@@ -172,7 +172,7 @@ sub is_package(_) {
 
 =begin :list
 
-= C<$bool = _::is_numeric $scalar>
+= C<$bool = _::is_numeric $_>
 
 wrapper for C<Scalar::Util::looks_like_number>
 
@@ -210,23 +210,23 @@ sub is_uint(_) {
 
 =begin :list
 
-= C<$int = _::ref_addr $ref>
+= C<$int = _::ref_addr $_>
 
 wrapper for C<Scalar::Util::refaddr>
 
-= C<$str = _::ref_type $ref>
+= C<$str = _::ref_type $_>
 
 wrapper for C<Scalar::Util::reftype>
 
-= C<_::ref_weaken $ref>
+= C<_::ref_weaken $_>
 
 wrapper for C<Scalar::Util::weaken>
 
-= C<_::ref_unweaken $ref>
+= C<_::ref_unweaken $_>
 
 wrapper for C<Scalar::Util::unweaken>
 
-= C<$bool = _::ref_is_weak $ref>
+= C<$bool = _::ref_is_weak $_>
 
 wrapper for C<Scalar::Util::isweak>
 
@@ -319,8 +319,8 @@ sub is_regex(_) {
 
 =begin :list
 
-= C<$str = _::blessed $object>
-= C<$str = _::class $object>
+= C<$str = _::blessed $_>
+= C<$str = _::class $_>
 
 wrapper for C<Scalar::Util::blessed>
 
@@ -338,26 +338,31 @@ In most cases, one should use C<_::class_does> instead.
 
 Checks that the C<$class> performs the given C<$role>, both given as strings.
 
-= C<$bool = _::is_instance $object, $role>
+= C<$bool = _::isa $object, $class>
 
-Checks that the given C<$object> can perform the C<$role>.
-This is essentially equivalent to `_::does`.
-
-= C<$bool = _::isa $object, 'Class'>
-
-wrapper for C<$Safe::Isa::_isa>
+Checks that the C<$object> inherits from the given class.
+In most cases, one should use C<_::does> or C<_::is_instance> instead.
 
 = C<$code = _::can $object, 'method'>
 
-wrapper for C<$Safe::Isa::_can>
+Checks that the given C<$object> can perform the C<method>.
+Returns C<undef> on failure, or the appropriate code ref on success,
+so that one can do C<< $object->$code(@args) >> afterwards.
 
-= C<$bool = _::does $object, 'Role'>
+= C<$bool = _::is_instance $object, $role>
 
-wrapper for C<$Safe::Isa::_DOES>
+= C<$bool = _::does $object, $role>
+
+Checks that the given C<$object> can perform the C<$role>.
 
 = C<< any = $maybe_object->_::safecall(method => @args) >>
 
-wrapper for C<$Safe::Isa::_call_if_object>
+This will call the C<method> only if the C<$maybe_object> is a blessed object.
+We do not check that the object C<can> perform the method, so this might still raise an exception.
+
+Context is propagated correctly to the method call.
+If the C<$maybe_object> is not an object, this will simply return.
+In scalar context, this evaluates to C<undef>, in list context this is the empty list.
 
 =end :list
 
@@ -386,11 +391,6 @@ sub class_does($$) {
         && $_[0]->DOES($_[1]);
 }
 
-sub is_instance($$) {
-    blessed $_[0]
-        && $_[0]->DOES($_[1]);
-}
-
 sub class_can($$) {
     is_package($_[0])
         && $_[0]->can($_[1]);
@@ -404,6 +404,11 @@ sub isa($$) {
 sub does($$) {
     blessed $_[0]
         && $_[0]->DOES($_[1]);
+}
+
+{
+    no warnings 'once';
+    *is_instance = \&does;
 }
 
 sub can($$) {

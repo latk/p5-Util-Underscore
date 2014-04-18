@@ -11,8 +11,8 @@ subtest 'identity tests' => sub {
 
     ok \&_::is_open == \&Scalar::Util::openhandle, "_::is_open";
 
-    is \&_::pp, \&Data::Dump::pp,   "_::pp";
-    is \&_::dd, \&Data::Dump::dd,   "_::dd";
+    is \&_::pp, \&Data::Dump::pp, "_::pp";
+    is \&_::dd, \&Data::Dump::dd, "_::dd";
 };
 
 sub foo { die "unimplemented" }

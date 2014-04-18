@@ -43,7 +43,6 @@ It contains functions from the following modules:
 * L<List::Util>
 * L<List::MoreUtils>
 * L<Carp>
-* L<Safe::Isa>, which contains convenience functions for L<UNIVERSAL>
 * L<Try::Tiny>
 
 Not all functions from those are available, and some have been renamed.
@@ -92,8 +91,6 @@ BEGIN {
     # in our other subs definitions below.
     $assign_aliases->(
         'Scalar::Util',
-        class        => 'blessed',
-        blessed      => 'blessed',
         ref_addr     => 'refaddr',
         ref_type     => 'reftype',
         ref_weaken   => 'weaken',
@@ -107,6 +104,15 @@ BEGIN {
         is_readonly  => 'readonly',
         is_tainted   => 'tainted',
     );
+}
+
+sub blessed(_) {
+    goto &Scalar::Util::blessed;
+}
+
+{
+    no warnings 'once';
+    *class = \&blessed;
 }
 
 =head2 Scalars
@@ -302,6 +308,11 @@ sub is_regex(_) {
 
 wrapper for C<Scalar::Util::blessed>
 
+= C<$bool = _::is_object $_>
+
+Checks that the argument is a blessed object.
+It's just an abbreviation for C<defined _::blessed $_>
+
 = C<$bool = _::class_isa $class, $supertype>
 
 Checks that the C<$class> inherits from the given C<$supertype>, both given as strings.
@@ -336,6 +347,10 @@ wrapper for C<$Safe::Isa::_call_if_object>
 
 =cut
 
+sub is_object(_) {
+    defined blessed $_[0];
+}
+
 sub class_isa($$) {
     is_package($_[0])
         && $_[0]->isa($_[1]);
@@ -351,20 +366,31 @@ sub is_instance($$) {
         && $_[0]->DOES($_[1]);
 }
 
+sub class_can($$) {
+    is_package($_[0])
+        && $_[0]->can($_[1]);
+}
+
 sub isa($$) {
-    goto &$Safe::Isa::_isa;
+    blessed $_[0]
+        && $_[0]->isa($_[1]);
 }
 
 sub does($$) {
-    goto &$Safe::Isa::_DOES;
+    blessed $_[0]
+        && $_[0]->DOES($_[1]);
 }
 
 sub can($$) {
-    goto &$Safe::Isa::_can;
+    blessed $_[0]
+        && $_[0]->can($_[1]);
 }
 
 sub safecall($$@) {
-    goto &$Safe::Isa::_call_if_object;
+    my $self = shift;
+    my $meth = shift;
+    return unless blessed $self;
+    $self->$meth(@_);
 }
 
 =head2 List::Util and List::MoreUtils
@@ -592,6 +618,7 @@ The following modules were once considered for inclusion or were otherwise influ
 =for :list
 * L<Data::Util>
 * L<Params::Util>
+* L<Safe::Isa>
 
 =cut
 

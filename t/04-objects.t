@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 12;
 
 use Util::Underscore;
 
@@ -39,19 +39,82 @@ my %class = (
 my %object;
 $object{$_} = bless [] => $class{$_} for keys %class;
 
+my $zero_object = bless [] => '0';
+
 subtest 'fixtures' => sub {
-    plan tests => 4;
+    plan tests => 6;
 
     for (keys %object) {
         is ref $object{$_}, $class{$_}, "instantiation for $_ successful";
     }
+
+    is ref $zero_object, '0', "zero object has correct ref type";
+    ok !ref $zero_object, "zero object class appears to be false";
 };
 
 subtest 'identity tests' => sub {
+    plan tests => 1;
+
+    is \&_::class, \&_::blessed, "_::class";
+};
+
+subtest '_::blessed' => sub {
     plan tests => 2;
 
-    is \&_::blessed, \&Scalar::Util::blessed, "_::blessed";
-    is \&_::class,   \&Scalar::Util::blessed, "_::class";
+    subtest 'boolean usage' => sub {
+        plan tests => 11;
+
+        ok _::blessed $object{parent}, "positive object";
+        ok _::blessed qr//, "positive regex object";
+        ok defined _::blessed $zero_object, "zero object correct return value";
+
+        ok !_::blessed undef, "negative undef";
+        ok !_::blessed 42,    "negative number";
+        ok !_::blessed "foo", "negative string";
+        ok !_::blessed [], "negative array reference";
+        ok !_::blessed {}, "negative hash reference";
+        ok !_::blessed $class{parent}, "negative class";
+
+        ok _::blessed,  "positive implicit argument" for $object{parent};
+        ok !_::blessed, "negative implicit argument" for undef;
+
+    };
+
+    subtest 'return values' => sub {
+        plan tests => 8 + (keys %class);
+
+        for (keys %class) {
+            is _::blessed $object{$_}, $class{$_}, "positive return value $_";
+        }
+
+        is _::blessed $zero_object, '0', "positive return value zero object";
+        is _::blessed qr//, 'Regexp', "positive return value Regexp";
+
+        ok !defined _::blessed undef, "negative undef";
+        ok !defined _::blessed 42,    "negative number";
+        ok !defined _::blessed "foo", "negative string";
+        ok !defined _::blessed [], "negative array reference";
+        ok !defined _::blessed {}, "negative hash reference";
+        ok !defined _::blessed $class{parent}, "negative class";
+    };
+};
+
+subtest '_::is_object' => sub {
+    plan tests => 11;
+
+    ok _::is_object $object{parent}, "positive object";
+    ok _::is_object qr//, "positive regex object";
+    ok _::is_object $zero_object, "positive zero object";
+
+    ok !_::is_object undef, "negative undef";
+    ok !_::is_object 42,    "negative number";
+    ok !_::is_object "foo", "negative string";
+    ok !_::is_object [], "negative array reference";
+    ok !_::is_object {}, "negative hash reference";
+    ok !_::is_object $class{parent}, "negative class";
+
+    ok _::is_object,  "positive implicit argument" for $object{parent};
+    ok !_::is_object, "negative implicit argument" for undef;
 };
 
 subtest '_::class_isa' => sub {
@@ -80,6 +143,15 @@ subtest '_::is_instance' => sub {
     ok _::is_instance($object{mock},   $class{parent}), "positive mock";
     ok !_::is_instance($object{unrelated}, $class{parent}),
         "negative unrelated";
+};
+
+subtest '_::class_can' => sub {
+    plan tests => 4;
+
+    ok _::class_can($class{parent}, 'marker'), "positive parent";
+    ok _::class_can($class{child},  'marker'), "positive child";
+    ok !_::class_can($class{mock},      'marker'), "negative mock";
+    ok !_::class_can($class{unrelated}, 'marker'), "negative unrelated";
 };
 
 subtest '_::isa' => sub {

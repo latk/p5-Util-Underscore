@@ -507,27 +507,26 @@ sub zip {
 
 =head2 Exception handling
 
-=begin :list
+The functions C<_::carp>, C<_::cluck>, C<_::croak>, and C<_::confess> from the C<Carp> module are available.
+They all take a list of strings as argument.
+How do they differ from each other?
 
-= C<_::carp "Message">
+    Stack Trace || Fatal    | Warning
+    ------------##====================
+        No      || croak    | carp
+        Yes     || confess  | cluck
 
-wrapper for C<Carp::carp>
+How do they differ from Perl's builtin C<die> and C<warn>?
+The error messages of C<die> and C<warn> are located on the line where the exception is raised.
+This makes debugging hard when the error points to some internal function of a module you are using,
+as this provides no information on where your client code made a mistake.
+The C<Carp> family of error functions report the error from the point of usage, and optionally provide stack traces.
+If you write a module, please use the C<Carp> functions instead of plain C<die>.
 
-= C<_::cluck "Message">
+Additionally, the variants C<_::carpf>, C<_::cluckf>, C<_::croakf>, and C<_::confessf> are provided.
+These take a C<sprintf> patterns as first argument: C<_::carpf "pattern", @arguments>.
 
-wrapper for C<Carp::cluck>
-
-= C<_::croak "Message">
-
-wrapper for C<Carp::croak>
-
-= C<_::confess "Message">
-
-wrapper for C<Carp::confess>
-
-=end :list
-
-The following keywords from C<Try::Tiny> are available:
+To handle errors, the following keywords from C<Try::Tiny> are available:
 
 =for :list
 * C<_::try>
@@ -538,13 +537,15 @@ They are all direct aliases for their namesakes in C<Try::Tiny>.
 
 =cut
 
-$assign_aliases->(
-    'Carp',
-    carp    => 'carp',
-    cluck   => 'cluck',
-    croak   => 'croak',
-    confess => 'confess',
-);
+BEGIN {
+    $assign_aliases->(
+        'Carp',
+        carp    => 'carp',
+        cluck   => 'cluck',
+        croak   => 'croak',
+        confess => 'confess',
+    );
+}
 
 $assign_aliases->(
     'Try::Tiny',
@@ -552,6 +553,30 @@ $assign_aliases->(
     catch   => 'catch',
     finally => 'finally',
 );
+
+sub carpf($@) {
+    my $pattern = shift;
+    @_ = sprintf $pattern, @_;
+    goto &carp;
+}
+
+sub cluckf($@) {
+    my $pattern = shift;
+    @_ = sprintf $pattern, @_;
+    goto &cluck;
+}
+
+sub croakf($@) {
+    my $pattern = shift;
+    @_ = sprintf $pattern, @_;
+    goto &croak;
+}
+
+sub confessf($@) {
+    my $pattern = shift;
+    @_ = sprintf $pattern, @_;
+    goto &confess;
+}
 
 =head2 Miscellaneous Functions
 

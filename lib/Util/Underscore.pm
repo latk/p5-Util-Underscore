@@ -11,9 +11,9 @@ use Scalar::Util 1.36    ();
 use Data::Alias 1.18     ();
 use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
+use Data::Dump 1.10      ();
+use Try::Tiny  0.03      ();
 use Carp       ();
-use Try::Tiny  ();
-use Data::Dump ();
 use overload   ();
 
 =pod

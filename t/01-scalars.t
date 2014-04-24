@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 use Util::Underscore;
 
@@ -78,9 +78,10 @@ BEGIN {
     }
 }
 
+my $stringy = Local::Stringy->new("foo");
+
 subtest '_::is_plain' => sub {
     plan tests => 7;
-    my $stringy = Local::Stringy->new("foo");
     ok _::is_plain 42,    "positive number";
     ok _::is_plain "foo", "positive string";
     ok !_::is_plain [], "negative ref";
@@ -88,6 +89,17 @@ subtest '_::is_plain' => sub {
     ok !_::is_plain $stringy, "negative stringy object";
     ok _::is_plain,  "positive implicit argument" for "foo";
     ok !_::is_plain, "negative implicit argument" for undef;
+};
+
+subtest '_::is_string' => sub {
+    plan tests => 7;
+    ok _::is_string 42,    "positive number";
+    ok _::is_string "foo", "positive string";
+    ok !_::is_string [], "negative ref";
+    ok !_::is_string undef, "negative undef";
+    ok _::is_string $stringy, "positive stringy object";
+    ok _::is_string,  "positive implicit argument" for "foo";
+    ok !_::is_string, "negative implicit argument" for undef;
 };
 
 subtest '_::is_identifier' => sub {

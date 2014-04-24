@@ -122,7 +122,12 @@ wrapper for C<Scalar::Util::tainted>
 = C<$bool = _::is_plain $_>
 
 Checks that the value is C<defined> and not a reference of any kind.
-This is as close as Perl gets to checking for a string.
+This is as close as Perl gets to checking for an ordinary string.
+
+= C<$bool = _::is_string $_>
+
+Checks that the value is intended to be usable as a string:
+Either C<_::is_plain> returns true, or it is an object that has overloaded stringification.
 
 = C<$bool = _::is_identifier $_>
 
@@ -160,6 +165,11 @@ sub is_tainted (_) {
 sub is_plain(_) {
     defined $_[0]
         && !defined ref_type $_[0];
+}
+
+sub is_string(_) {
+    &is_plain
+        || overload::Method($_[0], q[""]);
 }
 
 sub is_identifier(_) {

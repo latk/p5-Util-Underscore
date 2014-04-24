@@ -8,6 +8,7 @@ use warnings;
 use version 0.77; our $VERSION = qv('v1.1.1');
 
 use Scalar::Util 1.36    ();
+use Data::Alias 1.18     ();
 use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
 use Carp       ();
@@ -35,10 +36,12 @@ It contains functions from the following modules:
 
 =for :list
 * L<Scalar::Util|Scalar::Util>
+* L<Data::Alias|Data::Alias>
 * L<List::Util|List::Util>
 * L<List::MoreUtils|List::MoreUtils>
 * L<Carp|Carp>
 * L<Try::Tiny|Try::Tiny>
+* L<Data::Dump|Data::Dump>
 
 Not all functions from those are available, and some have been renamed.
 
@@ -119,6 +122,11 @@ wrapper for C<Scalar::Util::readonly>
 
 wrapper for C<Scalar::Util::tainted>
 
+= C<_::alias my $alias = $orig>
+
+Aliases the first variable to the second value, unlike normal assignment which assigns a copy.
+This is an alias (heh) for the functionality in L<Data::Alias|Data::Alias>.
+
 = C<$bool = _::is_plain $_>
 
 Checks that the value is C<defined> and not a reference of any kind.
@@ -144,7 +152,7 @@ This does not assert that the package actually exists.
 
 =cut
 
-$assign_aliases->('Scalar::Util', new_dual => 'dualvar',);
+$assign_aliases->('Scalar::Util', new_dual => 'dualvar');
 
 sub is_dual(_) {
     goto &Scalar::Util::isdual;
@@ -161,6 +169,8 @@ sub is_readonly(_) {
 sub is_tainted (_) {
     goto &Scalar::Util::tainted;
 }
+
+$assign_aliases->('Data::Alias', alias => 'alias');
 
 sub is_plain(_) {
     defined $_[0]
@@ -658,7 +668,7 @@ wrapper for C<Data::Dump::dd>.
 
 =cut
 
-$assign_aliases->('Scalar::Util', is_open => 'openhandle',);
+$assign_aliases->('Scalar::Util', is_open => 'openhandle');
 
 sub _::prototype ($;$) {
     if (@_ == 2) {

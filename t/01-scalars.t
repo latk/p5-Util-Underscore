@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 use Util::Underscore;
 
@@ -61,6 +61,19 @@ subtest '_::is_tainted' => sub {
     ok !_::is_tainted $untainted, "negative variable";
     ok _::is_tainted,  "positive implicit argument" for $tainted;
     ok !_::is_tainted, "negative implicit argument" for $untainted;
+};
+
+subtest '_::alias' => sub {
+    plan tests => 4;
+
+    my $orig = 42;
+    _::alias my $alias = $orig;
+    my $copy = $orig;
+
+    is $alias, $orig, "positive alias value comparison";
+    is $copy, $orig, "positive copy value comparison";
+    is \$alias, \$orig, "positive alias reference comparison";
+    isnt \$copy, \$orig, "negative copy reference comparison";
 };
 
 BEGIN {

@@ -675,10 +675,6 @@ wrapper for C<Scalar::Util::openhandle>
 
 gets or sets the prototype, wrapping either C<CORE::prototype> or C<Scalar::Util::set_prototype>
 
-= C<$instance = _::package $str>
-
-This will construct a new C<Package::Stash> instance.
-
 = C<$dir = _::Dir "foo/bar", "baz">
 
 Creates a new L<Path::Class::Dir|Path::Class::Dir> instance.

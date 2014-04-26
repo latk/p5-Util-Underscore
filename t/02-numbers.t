@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 5;
 
 use Util::Underscore;
 
@@ -118,4 +118,46 @@ subtest '_::is_uint' => sub {
     ok !_::is_uint "inf",  "negative inf";
     ok _::is_uint,  "positive implicit argument" for 42;
     ok !_::is_uint, "negative implicit argument" for undef;
+};
+
+subtest '_::ceil' => sub {
+    plan tests => 10;
+
+    # ordinary values
+    is _::ceil  42,    42, '+integer';
+    is _::ceil  41.2,  42, '+float';
+    is _::ceil -42,   -42, '-integer';
+    is _::ceil -41.2, -41, '-float';
+
+    # special values
+    # technically, we also should test for very large numbers
+    # where floating point inaccuracies become important
+    is _::ceil 0, 0,    'zero';
+    is _::ceil "-0", 0, '-zero';
+    is _::ceil  'Inf',  0+'Inf', '+Infinity';
+    is _::ceil '-Inf', 0+'-Inf', '-Infinity';
+    is _::ceil 'NaN', 0+'NaN', 'NaN';
+
+    is _::ceil, 42, "implicit argument" for 41.2;
+};
+
+subtest '_::floor' => sub {
+    plan tests => 10;
+
+    # ordinary values
+    is _::floor  42,    42, '+integer';
+    is _::floor  41.2,  41, '+float';
+    is _::floor -42,   -42, '-integer';
+    is _::floor -41.2, -42, '-float';
+
+    # special values
+    # technically, we also should test for very large numbers
+    # where floating point inaccuracies become important
+    is _::floor 0, 0,    'zero';
+    is _::floor "-0", 0, '-zero';
+    is _::floor  'Inf',  0+'Inf', '+Infinity';
+    is _::floor '-Inf', 0+'-Inf', '-Infinity';
+    is _::floor 'NaN', 0+'NaN', 'NaN';
+
+    is _::floor, 41, "implicit argument" for 41.2;
 };

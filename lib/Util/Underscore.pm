@@ -16,6 +16,7 @@ use List::MoreUtils 0.07 ();
 use Data::Dump 1.10      ();
 use Try::Tiny  0.03      ();
 use Carp       ();
+use POSIX      ();
 use overload   ();
 
 =pod
@@ -212,6 +213,22 @@ and its stringification matches a signed integer.
 Like C<_::is_int>, but the stringification must match an unsigned integer
 (i.e. the number is zero or positive).
 
+= C<$int = _::ceil $_>
+
+Returns the smallest integral value greater than or equal to the argument.
+Note that this still is a floating point value representing an integer.
+
+Wrapper for C<POSIX::ceil>.
+
+= C<$int = _::floor $_>
+
+Returns the largest integer smaller than or equal to the argument.
+Note that this still is a floating point value representing an integer.
+This is different from the C<int()> builtin in that C<int()> I<truncates> a float towards zero,
+and that C<int()> actually returns an integer.
+
+Wrapper for C<POSIX::floor>.
+
 =end :list
 
 =cut
@@ -232,6 +249,14 @@ sub is_uint(_) {
     defined $_[0]
         && !defined ref_type $_[0]
         && scalar($_[0] =~ /\A [0-9]+ \z/xsm);
+}
+
+sub ceil(_) {
+    goto &POSIX::ceil;
+}
+
+sub floor(_) {
+    goto &POSIX::floor;
 }
 
 =head2 References

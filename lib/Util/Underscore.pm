@@ -71,6 +71,7 @@ BEGIN {
 }
 
 my $assign_aliases;
+my $can_overload;
 
 BEGIN {
     $assign_aliases = sub {
@@ -82,6 +83,12 @@ BEGIN {
             *{$target} = *{$source}{CODE}
                 // Carp::croak "Unknown subroutine $source in assign_aliases";
         }
+    };
+
+    $can_overload = sub {
+        my ($self, $overload) = @_;
+        return undef if not defined $self;
+        goto &overload::Method;
     };
 }
 
@@ -183,7 +190,7 @@ sub is_plain(_) {
 
 sub is_string(_) {
     &is_plain
-        || overload::Method($_[0], q[""]);
+        || $can_overload->($_[0], q[""]);
 }
 
 sub is_identifier(_) {
@@ -335,38 +342,38 @@ sub is_ref(_) {
 
 sub is_scalar_ref(_) {
     defined($_[0])
-        && ('SCALAR' eq ref $_[0]
-        || overload::Method($_[0], '${}'));
+        && ('SCALAR' eq ref $_[0])
+        || $can_overload->($_[0], q[${}]);
 }
 
 sub is_array_ref(_) {
     defined($_[0])
-        && ('ARRAY' eq ref $_[0]
-        || overload::Method($_[0], '@{}'));
+        && ('ARRAY' eq ref $_[0])
+        || $can_overload->($_[0], q[@{}]);
 }
 
 sub is_hash_ref(_) {
     defined($_[0])
-        && ('HASH' eq ref $_[0]
-        || overload::Method($_[0], '%{}'));
+        && ('HASH' eq ref $_[0])
+        || $can_overload->($_[0], q[%{}]);
 }
 
 sub is_code_ref(_) {
     defined($_[0])
-        && ('CODE' eq ref $_[0]
-        || overload::Method($_[0], '&{}'));
+        && ('CODE' eq ref $_[0])
+        || $can_overload->($_[0], q[&{}]);
 }
 
 sub is_glob_ref(_) {
     defined($_[0])
-        && ('GLOB' eq ref $_[0]
-        || overload::Method($_[0], '*{}'));
+        && ('GLOB' eq ref $_[0])
+        || $can_overload->($_[0], q[*{}]);
 }
 
 sub is_regex(_) {
     defined(blessed $_[0])
-        && ('Regexp' eq ref $_[0]
-        || overload::Method($_[0], 'qr'));
+        && ('Regexp' eq ref $_[0])
+        || $can_overload->($_[0], q[qr]);
 }
 
 =head2 Classes and Objects

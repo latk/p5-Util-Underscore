@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 4;
 
 use Util::Underscore;
 
@@ -35,4 +35,18 @@ subtest '_::prototype' => sub {
 
     ok + (not defined _::prototype \&foo), 'sub prototype empty again';
     ok + (not defined _::prototype $foo), 'coderef prototype empty again';
+};
+
+subtest '_::Dir' => sub {
+    plan tests => 1;
+
+    my $dir = _::Dir "foo/bar", "baz";
+    isa_ok $dir, 'Path::Class::Dir';
+};
+
+subtest '_::File' => sub {
+    plan tests => 1;
+
+    my $file = _::File "foo/bar", "baz.txt";
+    isa_ok $file, 'Path::Class::File';
 };

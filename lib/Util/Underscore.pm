@@ -15,6 +15,7 @@ use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
 use Data::Dump 1.10      ();
 use Try::Tiny  0.03      ();
+use Path::Class          ();
 use Carp       ();
 use POSIX      ();
 use overload   ();
@@ -678,6 +679,14 @@ gets or sets the prototype, wrapping either C<CORE::prototype> or C<Scalar::Util
 
 This will construct a new C<Package::Stash> instance.
 
+= C<$dir = _::Dir "foo/bar", "baz">
+
+Creates a new L<Path::Class::Dir|Path::Class::Dir> instance.
+
+= C<$dir = _::File "foo/bar", "baz.txt">
+
+Creates a new L<Path::Class::File|Path::Class::File> instance.
+
 =end :list
 
 C<Data::Dump> is an alternative to C<Data::Dumper>.
@@ -709,6 +718,12 @@ sub _::prototype ($;$) {
         Carp::confess '_::prototype($;$) takes exactly one or two arguments';
     }
 }
+
+$assign_aliases->(
+    'Path::Class',
+    Dir => 'dir',
+    File => 'file',
+);
 
 $assign_aliases->(
     'Data::Dump',

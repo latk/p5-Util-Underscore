@@ -86,6 +86,10 @@ BEGIN {
 
     $can_overload = sub {
         my ($self, $overload) = @_;
+
+        # We explicitly "return undef" instead of "return" for compatibility
+        # with the current overload::Method implementation.
+        ## no critic (ProhibitExplicitReturnUndef)
         return undef if not defined $self;
         goto &overload::Method;
     };
@@ -188,6 +192,9 @@ sub is_plain(_) {
 }
 
 sub is_string(_) {
+
+    # use "&is_plain" to share the current @_ with the called sub
+    ## no critic (ProhibitAmpersandSigils)
     &is_plain
         || $can_overload->($_[0], q[""]);
 }
@@ -711,16 +718,19 @@ sub _::prototype ($;$) {
         return prototype $coderef;    # Calls CORE::prototype
     }
     else {
+        ## no critic (RequireInterpolationOfMetachars)
         Carp::confess '_::prototype($;$) takes exactly one or two arguments';
     }
 }
 
-sub Dir(@) {
+# This sub uses CamelCase because it's a factory function
+sub Dir(@) {    ## no critic (NamingConventions::Capitalization)
     require Path::Class;
     Path::Class::Dir->new(@_);
 }
 
-sub File(@) {
+# This sub uses CamelCase because it's a factory function
+sub File(@) {    ## no critic (NamingConventions::Capitalization)
     require Path::Class;
     Path::Class::File->new(@_);
 }

@@ -71,8 +71,8 @@ subtest '_::alias' => sub {
     my $copy = $orig;
 
     is $alias, $orig, "positive alias value comparison";
-    is $copy, $orig, "positive copy value comparison";
-    is \$alias, \$orig, "positive alias reference comparison";
+    is $copy,  $orig, "positive copy value comparison";
+    is \$alias,  \$orig, "positive alias reference comparison";
     isnt \$copy, \$orig, "negative copy reference comparison";
 };
 

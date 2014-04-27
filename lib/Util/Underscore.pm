@@ -14,10 +14,10 @@ use Data::Alias 1.18     ();
 use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
 use Data::Dump 1.10      ();
-use Try::Tiny  0.03      ();
-use Carp       ();
-use POSIX      ();
-use overload   ();
+use Try::Tiny 0.03       ();
+use Carp     ();
+use POSIX    ();
+use overload ();
 
 =pod
 
@@ -340,38 +340,32 @@ sub is_ref(_) {
 }
 
 sub is_scalar_ref(_) {
-    defined($_[0])
-        && ('SCALAR' eq ref $_[0])
+    defined($_[0]) && ('SCALAR' eq ref $_[0])
         || $can_overload->($_[0], q[${}]);
 }
 
 sub is_array_ref(_) {
-    defined($_[0])
-        && ('ARRAY' eq ref $_[0])
+    defined($_[0]) && ('ARRAY' eq ref $_[0])
         || $can_overload->($_[0], q[@{}]);
 }
 
 sub is_hash_ref(_) {
-    defined($_[0])
-        && ('HASH' eq ref $_[0])
+    defined($_[0]) && ('HASH' eq ref $_[0])
         || $can_overload->($_[0], q[%{}]);
 }
 
 sub is_code_ref(_) {
-    defined($_[0])
-        && ('CODE' eq ref $_[0])
+    defined($_[0]) && ('CODE' eq ref $_[0])
         || $can_overload->($_[0], q[&{}]);
 }
 
 sub is_glob_ref(_) {
-    defined($_[0])
-        && ('GLOB' eq ref $_[0])
+    defined($_[0]) && ('GLOB' eq ref $_[0])
         || $can_overload->($_[0], q[*{}]);
 }
 
 sub is_regex(_) {
-    defined(blessed $_[0])
-        && ('Regexp' eq ref $_[0])
+    defined(blessed $_[0]) && ('Regexp' eq ref $_[0])
         || $can_overload->($_[0], q[qr]);
 }
 

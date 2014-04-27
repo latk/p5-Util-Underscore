@@ -15,7 +15,6 @@ use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
 use Data::Dump 1.10      ();
 use Try::Tiny  0.03      ();
-use Path::Class          ();
 use Carp       ();
 use POSIX      ();
 use overload   ();
@@ -722,11 +721,15 @@ sub _::prototype ($;$) {
     }
 }
 
-$assign_aliases->(
-    'Path::Class',
-    Dir => 'dir',
-    File => 'file',
-);
+sub Dir(@) {
+    require Path::Class;
+    Path::Class::Dir->new(@_);
+}
+
+sub File(@) {
+    require Path::Class;
+    Path::Class::File->new(@_);
+}
 
 $assign_aliases->(
     'Data::Dump',

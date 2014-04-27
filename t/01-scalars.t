@@ -3,7 +3,8 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
+use Test::Exception;
 
 use Util::Underscore;
 
@@ -48,6 +49,52 @@ subtest '_::is_readonly' => sub {
     ok !_::is_readonly $var, "negative";
     ok _::is_readonly,  "positive default argument" for 42;
     ok !_::is_readonly, "negative default argument" for $var;
+};
+
+subtest '_::const' => sub {
+    plan tests => 4;
+
+    subtest "mutation during constification" => sub {
+        plan tests => 3;
+
+        my $var = 42;
+        ok !_::is_readonly $var, "fixture: variable is variable";
+        _::const $var => do { my $x = "foo" };
+        ok _::is_readonly $var, "variable made readonly";
+        is $var, "foo", "variable reassigned by _::const";
+    };
+
+    subtest "scalars" => sub {
+        plan tests => 4;
+
+        _::const my $const => \do { my $x = my $y = "foo" };
+        ok _::is_readonly $const, "constant is readonly";
+        is ref $const, 'SCALAR', "constant has correct type";
+        ok _::is_readonly $$const, "constant is deeply immutable";
+        is $$const, "foo", "data structure is deeply as expected";
+    };
+
+    subtest "arrays" => sub {
+        plan tests => 5;
+
+        _::const my @const => (1, 2, 3);
+        is_deeply \@const, [ 1, 2, 3 ], "created correct data structure";
+        dies_ok { push @const, 4 } "constness resents additions";
+        dies_ok { pop @const } "constness resents removal";
+        dies_ok { @const = () } "constness resents clearing";
+        dies_ok { $const[1] = "foo" } "constness resents member reassignment";
+    };
+
+    subtest "hashes" => sub {
+        plan tests => 5;
+
+        _::const my %const => (a => 1, b => 2);
+        is_deeply \%const, { a => 1, b => 2 }, "created correct data structure";
+        dies_ok { $const{c} = 3 } "constness resents additions";
+        dies_ok { delete $const{a} } "constness resents removal";
+        dies_ok { %const = () } "constness resents clearing";
+        dies_ok { $const{a} = "foo" } "constness resents member reassignment";
+    };
 };
 
 subtest '_::is_tainted' => sub {

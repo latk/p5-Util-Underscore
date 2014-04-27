@@ -15,6 +15,7 @@ use List::Util 1.35      ();
 use List::MoreUtils 0.07 ();
 use Data::Dump 1.10      ();
 use Try::Tiny 0.03       ();
+use Const::Fast 0.011    ();
 use Carp     ();
 use POSIX    ();
 use overload ();
@@ -39,6 +40,7 @@ It contains functions from the following modules:
 
 =for :list
 * L<Scalar::Util|Scalar::Util>
+* L<Const::Fast|Const::Fast>
 * L<Data::Alias|Data::Alias>
 * L<List::Util|List::Util>
 * L<List::MoreUtils|List::MoreUtils>
@@ -128,6 +130,17 @@ wrapper for C<Scalar::Util::isdual>
 
 wrapper for C<Scalar::Util::isvstring>
 
+= C<< _::const my $CONSTANT => "value" >>
+
+Creates a readonly C<$CONSTANT> containing the specified value.
+Note that this makes a deep immutable copy of the value instead of only disallowing reassignment.
+This works for scalars, arrays, and hashes.
+Certain care has to be taken for hashes because this locks the keys,
+and using an illegal key would blow up with an error.
+Therefore: always use C<exists $hash{$key}> to see whether a key exists.
+
+Wrapper for C<const> from C<Const::Fast|Const::Fast>.
+
 = C<$bool = _::is_readonly $_>
 
 wrapper for C<Scalar::Util::readonly>
@@ -179,6 +192,8 @@ sub is_vstring(_) {
 sub is_readonly(_) {
     goto &Scalar::Util::readonly;
 }
+
+$assign_aliases->('Const::Fast', const => 'const');
 
 sub is_tainted (_) {
     goto &Scalar::Util::tainted;

@@ -1,36 +1,45 @@
-v1.1.0
-     *  Reorganized documentation
+v1.1.1      2014-03-19
 
-        The docs are now organized by topic, instead of by source module. In the
-        same vein, the tests were improved.
+    - Removed build files from the manifest.
 
-     *  Improved prototypes for many functions
+v1.1.0      2014-03-18
 
-        Nearly all single argument functions now default to "$_" as their arg.
-        This makes their usage in "map" or "grep" more convenient, e.g.
+    [New Functionality]
 
-            @classes = map _::class, @objects
+    - Scalars: added is_plain, is_identifier, is_package.
 
-     *  Added the "carpf" family of functions for formatted error messages
+    - Numbers: added is_int, is_uint.
 
-     *  Added "Data::Dump" functions
+    - Reference Type Validation: added is_ref, is_scalar_ref, is_array_ref,
+    is_hash_ref, is_code_ref, is_glob_ref, is_regex.
 
-     *  Added "_::is_object", "_::is_instance", "_::class_can"
+    - Classes and Objects: added is_object, is_instance, class_can.
 
-     *  Added various type checking functions
+    - Exception Handling: added "carpf" family of functions for formatted error
+    messages.
 
-         *  reference validation: is_ref, is_scalar_ref, is_array_ref,
-            is_hash_ref, is_code_ref, is_glob_ref, is_regex.
-         *  numeric validation: is_int, is_uint.
-         *  other functions: is_plain, is_identifier, is_package.
+    - Miscellaneous Functions: added "Data::Dump" functions.
 
-     *  Removed dependency on "Safe::Isa", as we can do the same thing with less
-        overhead
+    [Changed Functionality]
 
-     *  Various optimizations were merged from DOLMEN
+    - Improved prototypes for many functions: Nearly all single argument
+    functions now default to "$_" as their arg. This makes their usage in "map",
+    "grep", or "for" more convenient, e.g. "@classes = map _::class, @objects".
 
-v1.0.1
-     *  fixed bugs that prevented installation on older perls
+    [Other Changes]
 
-v1.0.0
-    initial release
+    - The documentation is now organized by topic, instead of by source module.
+    In the same vein, the tests were improved.
+
+    - Removed dependency on "Safe::Isa", as we can do the same thing ourselves
+    with less overhead.
+
+    - Various optimizations were merged from DOLMEN
+
+v1.0.1      2014-03-02
+
+    - Fixed bugs that prevented installation on older perls.
+
+v1.0.0      2014-03-02
+
+    - Initial release.

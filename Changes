@@ -1,3 +1,25 @@
+vXXX        XXXX-XX-XX
+
+    [New Functionality]
+
+    - Scalars: added is_string, alias from Data::Alias, const from Const::Fast.
+
+    - Numbers: added floor, ceil.
+
+    - Miscellaneous Functions: added File() and Dir() as Path::Class bindings
+
+    [Changed Functionality]
+
+    - The is_* validation functions handle undef input without warnings now.
+
+    [Other Changes]
+
+    - Tightened dependencies to decrease chance of test failures.
+
+    - Added a "_.pm" file to reduce clashes.
+
+    - Removed documentation for _::package which never existed.
+
 v1.1.1      2014-03-19
 
     - Removed build files from the manifest.

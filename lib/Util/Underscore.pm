@@ -60,15 +60,9 @@ BEGIN {
 }
 
 BEGIN {
-    # prevent other "_" packages from being loaded:
-    # Just setting the ${INC} entry would fail too silently,
-    # so we also rigged the "import" method.
-
-    ## no critic (RequireLocalizedPunctuationVars)
-    $INC{'_.pm'} = *_::import = sub {
-        Carp::confess qq(The "_" package is internal to Util::Underscore)
-            . qq(and must not be imported directly.\n);
-    };
+    # load the dummy "_.pm" module
+    local our $_WE_COME_IN_PEACE = 1;
+    require _;
 }
 
 my $assign_aliases;

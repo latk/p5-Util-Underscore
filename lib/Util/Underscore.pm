@@ -8,17 +8,17 @@ use strict;
 use warnings;
 
 use version 0.77; our $VERSION = qv('v1.1.1');
-
-use Scalar::Util 1.36    ();
-use Data::Alias 1.18     ();
-use List::Util 1.35      ();
-use List::MoreUtils 0.07 ();
-use Data::Dump 1.10      ();
-use Try::Tiny 0.03       ();
-use Const::Fast 0.011    ();
-use Carp     ();
-use POSIX    ();
 use overload ();
+
+use Carp ();
+use Const::Fast 0.011 ();
+use Data::Alias 1.18 ();
+use Data::Dump 1.10 ();
+use List::MoreUtils 0.07 ();
+use List::Util 1.35 ();
+use POSIX ();
+use Scalar::Util 1.36 ();
+use Try::Tiny 0.03 ();
 
 =pod
 
@@ -36,19 +36,18 @@ use overload ();
 This module contains various utility functions, and makes them accessible through the C<_> package.
 This allows the use of these utilities (a) without much per-usage overhead and (b) without namespace pollution.
 
-It contains functions from the following modules:
+It contains selected functions from the following modules:
+L<Carp|Carp>,
+L<Const::Fast|Const::Fast>,
+L<Data::Alias|Data::Alias>,
+L<Data::Dump|Data::Dump>,
+L<List::MoreUtils|List::MoreUtils>,
+L<List::Util|List::Util>,
+L<POSIX|POSIX>,
+L<Scalar::Util|Scalar::Util>,
+L<Try::Tiny|Try::Tiny>.
 
-=for :list
-* L<Scalar::Util|Scalar::Util>
-* L<Const::Fast|Const::Fast>
-* L<Data::Alias|Data::Alias>
-* L<List::Util|List::Util>
-* L<List::MoreUtils|List::MoreUtils>
-* L<Carp|Carp>
-* L<Try::Tiny|Try::Tiny>
-* L<Data::Dump|Data::Dump>
-
-Not all functions from those are available, and some have been renamed.
+Not all functions from those are available, some have been renamed, and some functions of our own have been added.
 
 =cut
 
@@ -60,8 +59,11 @@ BEGIN {
 }
 
 BEGIN {
-    # load the dummy "_.pm" module
-    local our $_WE_COME_IN_PEACE = 1;
+    # Load the dummy "_.pm" module.
+    # This will set up various booby traps so that "_" isn't used directly.
+    # In order to prevent the traps from triggering when *we* go there, we have
+    # to declare our peaceful intentions:
+    local our $_WE_COME_IN_PEACE = 'pinky swear';
     require _;
 }
 
@@ -101,6 +103,13 @@ package    # Hide from PAUSE
     _;
 
 ## no critic (RequireArgUnpacking, RequireFinalReturn, ProhibitSubroutinePrototypes)
+#   Why this "no critic"? In an util module, efficiency is crucial because we
+# have no idea about the context where these function are being used. Therefore,
+# no arg unpacking, and no explicit return. Most functions are so trivial anyway
+# that this isn't much of a legibility concern.
+#   Subroutine prototypes are used to offer a convenient and natural interface.
+# I fully understand why they shouldn't be used in ordinary code, but this
+# module puts them to mostly good use.
 
 # Predeclare a few things so that we can use them in the sub definitions below.
 sub blessed(_);
@@ -133,7 +142,7 @@ Certain care has to be taken for hashes because this locks the keys,
 and using an illegal key would blow up with an error.
 Therefore: always use C<exists $hash{$key}> to see whether a key exists.
 
-Wrapper for C<const> from C<Const::Fast|Const::Fast>.
+Wrapper for C<const> from L<Const::Fast|Const::Fast>.
 
 = C<$bool = _::is_readonly $_>
 
@@ -750,14 +759,42 @@ $assign_aliases->(
     dd => 'dd',
 );
 
+=head1 RATIONALE
+
+=head4 Context and Package Name
+
+There are a variety of good utility modules like C<Carp> or C<Scalar::Util>.
+I noticed I don't import these (in order to avoid namespace pollution), but rather refer to these functions via their fully qualified names (e.g. C<Carp::carp>).
+This is ultimately annoying and repetitive.
+
+This module populates the C<_> package (a nod to JavaScript's Underscore.js library) with various helpers so that they can be used without having to import them, with a per-usage overhead of only three characters C<_::>.
+The large number of dependencies makes this module somewhat heavyweight, but it avoids the “is C<any> in List::Util or List::MoreUtils”-problem.
+
+In retrospect, choosing the C<_> package name was a mistake:
+A certain part of Perl's infrastructure doesn't recognize C<_> as a valid package name (although Perl itself does).
+More importantly, Perl's filetest operators can use the magic C<_> filehandle which would interfere with this module if it were intended for anything else than fully qualified access to its functions.
+Still, a single underscore is less intrusive than some jumbled letters like C<Ut::any>.
+
+=head4 Scope and Function Naming
+
+This module collects various utility functions that – in my humble opinion – should be part of the Perl language, if the main namespace wouldn't become too crowded as a result.
+Because everything is safely hedged into the C<_> namespace, we can go wild without fearing name collisions.
+However, a few naming conventions were adhered to:
+
+=for :list
+* Functions with a boolean return value start with C<is_>.
+* If the source module already provided a sensible name, it is kept to reduce confusion.
+* Factory functions that return an object use CamelCase.
+
+=cut
+
 =head1 RELATED MODULES
 
 The following modules were once considered for inclusion or were otherwise influental in the design of this collection:
-
-=for :list
-* L<Data::Util|Data::Util>
-* L<Params::Util|Params::Util>
-* L<Safe::Isa|Safe::Isa>
+L<Data::Types|Data::Types>,
+L<Data::Util|Data::Util>,
+L<Params::Util|Params::Util>,
+L<Safe::Isa|Safe::Isa>.
 
 =cut
 

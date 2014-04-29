@@ -1,7 +1,6 @@
 # this matches, but perlcritic seems to use retarded regexes that don't get this.
 ## no critic (Modules::RequireFilenameMatchesPackage)
-package    # hide from PAUSE
-    _;
+package _;
 
 # PODNAME: _.pm
 # ABSTRACT: do not use this module directly
@@ -21,7 +20,7 @@ my $blow_up = sub {
 
     # be silent if this is being loaded by Util::Underscore
     ## no critic (ProtectPrivateVars)
-    return 1 if $Util::Underscore::_WE_COME_IN_PEACE;
+    return 1 if $Util::Underscore::_WE_COME_IN_PEACE eq 'pinky swear';
 
     # loudly complain otherwise.
     Carp::confess qq(The "_" package is internal to Util::Underscore)
@@ -51,3 +50,5 @@ The "_" package is internal to L<Util::Underscore|Util::Underscore>,
 and only serves as a placeholder.
 
 Any attempt to use, require, or import this module should result in an error message.
+
+The functions in the C<_> namespace are documented in the L<Util::Underscore|Util::Underscore> documentation.

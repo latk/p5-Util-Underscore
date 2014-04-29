@@ -11,14 +11,14 @@ use version 0.77; our $VERSION = qv('v1.1.1');
 use overload ();
 
 use Carp ();
-use Const::Fast 0.011 ();
-use Data::Alias 1.18 ();
-use Data::Dump 1.10 ();
+use Const::Fast 0.011    ();
+use Data::Alias 1.18     ();
+use Data::Dump 1.10      ();
 use List::MoreUtils 0.07 ();
-use List::Util 1.35 ();
+use List::Util 1.35      ();
 use POSIX ();
 use Scalar::Util 1.36 ();
-use Try::Tiny 0.03 ();
+use Try::Tiny 0.03    ();
 
 =pod
 
@@ -68,7 +68,6 @@ BEGIN {
 }
 
 my $assign_aliases;
-my $can_overload;
 
 BEGIN {
     $assign_aliases = sub {
@@ -80,16 +79,6 @@ BEGIN {
             *{$target} = *{$source}{CODE}
                 // Carp::croak "Unknown subroutine $source in assign_aliases";
         }
-    };
-
-    $can_overload = sub {
-        my ($self, $overload) = @_;
-
-        # We explicitly "return undef" instead of "return" for compatibility
-        # with the current overload::Method implementation.
-        ## no critic (ProhibitExplicitReturnUndef)
-        return undef if not defined $self;
-        goto &overload::Method;
     };
 }
 
@@ -354,11 +343,9 @@ sub is_plain(_) {
 }
 
 sub is_string(_) {
-
-    # use "&is_plain" to share the current @_ with the called sub
-    ## no critic (ProhibitAmpersandSigils)
-    &is_plain
-        || $can_overload->($_[0], q[""]);
+    defined $_[0]
+        && (!defined ref_type $_[0]
+        || overload::Method($_[0], q[""]));
 }
 
 sub is_identifier(_) {
@@ -550,33 +537,54 @@ sub is_ref(_) {
 }
 
 sub is_scalar_ref(_) {
-    defined($_[0]) && ('SCALAR' eq ref $_[0])
-        || $can_overload->($_[0], q[${}]);
+    defined($_[0])
+        && (
+        (defined blessed $_[0])
+        ? overload::Method($_[0], q[${}])
+        : (ref_type $_[0] // q[]) eq 'SCALAR'
+        );
 }
 
 sub is_array_ref(_) {
-    defined($_[0]) && ('ARRAY' eq ref $_[0])
-        || $can_overload->($_[0], q[@{}]);
+    defined($_[0])
+        && (
+        (defined blessed $_[0])
+        ? overload::Method($_[0], q[@{}])
+        : (ref_type $_[0] // q[]) eq 'ARRAY'
+        );
 }
 
 sub is_hash_ref(_) {
-    defined($_[0]) && ('HASH' eq ref $_[0])
-        || $can_overload->($_[0], q[%{}]);
+    defined($_[0])
+        && (
+        (defined blessed $_[0])
+        ? overload::Method($_[0], q[%{}])
+        : (ref_type $_[0] // q[]) eq 'HASH'
+        );
 }
 
 sub is_code_ref(_) {
-    defined($_[0]) && ('CODE' eq ref $_[0])
-        || $can_overload->($_[0], q[&{}]);
+    defined($_[0])
+        && (
+        (defined blessed $_[0])
+        ? overload::Method($_[0], q[&{}])
+        : (ref_type $_[0] // q[]) eq 'CODE'
+        );
 }
 
 sub is_glob_ref(_) {
-    defined($_[0]) && ('GLOB' eq ref $_[0])
-        || $can_overload->($_[0], q[*{}]);
+    defined($_[0])
+        && (
+        (defined blessed $_[0])
+        ? overload::Method($_[0], q[*{}])
+        : (ref_type $_[0] // q[]) eq 'GLOB'
+        );
 }
 
 sub is_regex(_) {
-    defined(blessed $_[0]) && ('Regexp' eq ref $_[0])
-        || $can_overload->($_[0], q[qr]);
+    defined(blessed $_[0])
+        && ('REGEXP' eq ref_type $_[0]
+        || overload::Method($_[0], q[qr]));
 }
 
 =head2 Classes and Objects

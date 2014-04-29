@@ -20,7 +20,7 @@ my $blow_up = sub {
 
     # be silent if this is being loaded by Util::Underscore
     ## no critic (ProtectPrivateVars)
-    return 1 if $Util::Underscore::_WE_COME_IN_PEACE eq 'pinky swear';
+    return 1 if ($Util::Underscore::_WE_COME_IN_PEACE // q[]) eq 'pinky swear';
 
     # loudly complain otherwise.
     Carp::confess qq(The "_" package is internal to Util::Underscore)

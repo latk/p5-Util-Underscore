@@ -375,35 +375,76 @@ sub is_package(_) {
 
 =begin :list
 
-= C<$bool = _::is_numeric $_>
+= C<$bool = _::is_numeric $scalar>
+= C<$bool = _::is_numeric>
+
+Check whether Perl considers the C<$scalar> to be numeric in any way.
+
+This includes integers and various floating point formats, but usually also C<NaN> and C<inf> and some other special strings.
 
 wrapper for C<Scalar::Util::looks_like_number>
 
-= C<$bool = _::is_int $_>
+B<$scalar>:
+the scalar to check for numericness.
+If omitted, uses C<$_>.
 
-The argument is a plain scalar,
+B<returns>:
+a boolean value indicating whether the C<$scalar> can be used as a numeric value.
+
+= C<$bool = _::is_int $scalar>
+= C<$bool = _::is_int>
+
+Checks that the argument is a plain scalar,
 and its stringification matches a signed integer.
 
-= C<$bool = _::is_uint $_>
+B<$scalar>:
+the scalar to be checked.
+If omitted, uses C<$_>.
+
+B<returns>:
+a boolean value indicating whether the C<$scalar> is an integer.
+
+= C<$bool = _::is_uint $scalar>
+= C<$bool = _::is_uint>
 
 Like C<_::is_int>, but the stringification must match an unsigned integer
 (i.e. the number is zero or positive).
 
-= C<$int = _::ceil $_>
+B<$scalar>:
+the scalar to be checked.
+If omitted, uses C<$_>.
 
-Returns the smallest integral value greater than or equal to the argument.
-Note that this still is a floating point value representing an integer.
+B<returns>:
+a boolean value indicating whether the C<$scalar> is an unsigned integer.
 
-Wrapper for C<POSIX::ceil>.
+= C<$int = _::ceil $float>
+= C<$int = _::ceil>
 
-= C<$int = _::floor $_>
+wrapper for C<POSIX::ceil>
 
-Returns the largest integer smaller than or equal to the argument.
-Note that this still is a floating point value representing an integer.
+B<$float>:
+any number.
+If omitted, uses C<$_>.
+
+B<returns>:
+a float representing the smallest integral value greater than or equal to the C<$float>.
+If the C<$float> is not a finite number (i.e. infinite or NaN), then that input is returned.
+
+= C<$int = _::floor $float>
+= C<$int = _::floor>
+
+wrapper for C<POSIX::floor>
+
 This is different from the C<int()> builtin in that C<int()> I<truncates> a float towards zero,
 and that C<int()> actually returns an integer.
 
-Wrapper for C<POSIX::floor>.
+B<$float>:
+any number.
+If omitted, uses C<$_>.
+
+B<returns>:
+a float representing the smallest integral value smaller than or equal to the argument.
+If the C<$float> is not a finite number (i.e. infinite or NaN), then that input is returned.
 
 =end :list
 

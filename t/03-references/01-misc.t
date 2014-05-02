@@ -37,7 +37,7 @@ subtest '_::ref_addr' => sub {
 };
 
 subtest '_::ref_type' => sub {
-    plan tests => 7;
+    plan tests => 8;
     is _::ref_type [], 'ARRAY', "positive simple ref";
 
     my $object = bless [], "Foo";
@@ -49,6 +49,18 @@ subtest '_::ref_type' => sub {
 
     is _::ref_type, 'ARRAY', "positive default argument" for [];
     ok !defined _::ref_type, "negative default argument" for undef;
+
+    subtest "positive return values" => sub {
+        plan tests => 7;
+
+        is _::ref_type \1, 'SCALAR', 'SCALAR';
+        is _::ref_type \\1, 'REF', 'REF';
+        is _::ref_type [], 'ARRAY', 'ARRAY';
+        is _::ref_type {}, 'HASH', 'HASH';
+        is _::ref_type sub { }, 'CODE', 'CODE';
+        is _::ref_type \*::, 'GLOB', 'GLOB';
+        is _::ref_type qr//, 'REGEXP', 'REGEXP';
+    };
 };
 
 subtest 'weak refs' => sub {

@@ -86,7 +86,7 @@ subtest '_::is_ref' => sub {
 };
 
 subtest '_::is_scalar_ref' => sub {
-    plan tests => 8 + (keys %refs) - 1;
+    plan tests => 9 + (keys %refs) - 1;
 
     ok _::is_scalar_ref $refs{scalar}, "positive plain ref";
     ok _::is_scalar_ref $overloaded_objects{scalar},
@@ -102,6 +102,9 @@ subtest '_::is_scalar_ref' => sub {
 
     ok _::is_scalar_ref,  "positive default argument" for $refs{scalar};
     ok !_::is_scalar_ref, "negative default argument" for undef;
+
+    # additionally, test that references to references are also handled:
+    ok _::is_scalar_ref \\1, "positive ref ref";
 };
 
 subtest '_::is_array_ref' => sub {

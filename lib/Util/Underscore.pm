@@ -494,7 +494,7 @@ If the input is not a reference, C<undef> is returned.
 wrapper for C<Scalar::Util::reftype>
 
 Accesses the type of the bare reference:
-C<SCALAR>, C<ARRAY>, C<HASH>, C<CODE>, C<GLOB>, C<REGEXP>.
+C<SCALAR>, C<REF>, C<ARRAY>, C<HASH>, C<CODE>, C<GLOB>, C<REGEXP>.
 Unfortunately, regexes are special, so C<_::ref_type qr//> is C<REGEXP> while C<ref qr//> is C<Regexp>.
 
 B<$reference>:
@@ -562,7 +562,7 @@ It will not be checked that an object claims to perform an appropriate role (e.g
 
 =for :list
 * C<_::is_ref> (any nonblessed reference)
-* C<_::is_scalar_ref>
+* C<_::is_scalar_ref> (also references to references)
 * C<_::is_array_ref>
 * C<_::is_hash_ref>
 * C<_::is_code_ref>
@@ -602,7 +602,10 @@ sub is_scalar_ref(_) {
         && (
         (defined blessed $_[0])
         ? overload::Method($_[0], q[${}])
-        : (ref_type $_[0] // q[]) eq 'SCALAR'
+        : do {
+            my $type = ref_type $_[0] // q[];
+            $type eq 'SCALAR' || $type eq 'REF';
+        }
         );
 }
 

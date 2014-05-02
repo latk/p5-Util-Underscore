@@ -467,25 +467,86 @@ sub floor(_) {
 
 =begin :list
 
-= C<$int = _::ref_addr $_>
+= C<$int = _::ref_addr $reference>
+= C<$int = _::ref_addr>
 
 wrapper for C<Scalar::Util::refaddr>
 
-= C<$str = _::ref_type $_>
+This is mostly equivalent to the numification of a reference: C<0+$ref>.
+However, that fails for objects which have overloaded addition, which is why you should use this function instead.
+
+The ref address denotes identity:
+two references with the same address are the same object.
+However, the same address might be reused later, so storing the address is not useful.
+Use weak references instead.
+
+B<$reference>:
+the reference to obtain the address of.
+If omitted, uses C<$_>.
+
+B<returns>:
+an integer representing ther reference address if the input is any kind of reference (plain reference or object).
+If the input is not a reference, C<undef> is returned.
+
+= C<$str = _::ref_type $reference>
+= C<$str = _::ref_type>
 
 wrapper for C<Scalar::Util::reftype>
 
-= C<_::ref_weaken $_>
+Accesses the type of the bare reference:
+C<SCALAR>, C<ARRAY>, C<HASH>, C<CODE>, C<GLOB>, C<REGEXP>.
+Unfortunately, regexes are special, so C<_::ref_type qr//> is C<REGEXP> while C<ref qr//> is C<Regexp>.
+
+B<$reference>:
+the reference to obtain the type of.
+If omitted, uses C<$_>.
+
+B<returns>:
+the type of the reference.
+For blessed references, this will not be the class, but the type of the blessed reference.
+If the input is not a reference, C<undef> is returned.
+
+= C<_::ref_weaken $reference>
+= C<_::ref_weaken>
+
+Turns the reference into a weak reference.
 
 wrapper for C<Scalar::Util::weaken>
 
-= C<_::ref_unweaken $_>
+B<$reference>:
+the reference to weaken.
+If omitted, uses C<$_>.
+
+B<returns>:
+n/a
+
+= C<_::ref_unweaken $reference>
+= C<_::ref_unweaken>
+
+Turns a weak reference into a normal reference.
 
 wrapper for C<Scalar::Util::unweaken>
 
-= C<$bool = _::ref_is_weak $_>
+B<$reference>:
+the reference to unweaken.
+If omitted, uses C<$_>.
+
+B<returns>:
+n/a
+
+= C<$bool = _::ref_is_weak $reference>
+= C<$bool = _::ref_is_weak>
+
+Checks whether the given reference is a weak reference.
 
 wrapper for C<Scalar::Util::isweak>
+
+B<$reference>:
+the reference to check.
+If omitted, uses C<$_>.
+
+B<returns>:
+a boolean indicating whether the given C<$reference> was a weak reference.
 
 =end :list
 
@@ -495,7 +556,7 @@ These are inspired from C<Params::Util> and C<Data::Util>.
 
 The I<reference validation> routines take one argument (or C<$_>) and return a boolean value.
 They return true when the value is intended to be used as a reference of that kind:
-either C<ref $arg> is of the requested type,
+either C<ref_type $arg> is of the requested type,
 or it is an overloaded object that can be used as a reference of that kind.
 It will not be checked that an object claims to perform an appropriate role (e.g. C<< $arg->DOES('ARRAY') >>).
 

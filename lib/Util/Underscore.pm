@@ -655,41 +655,109 @@ sub is_regex(_) {
 
 =begin :list
 
-= C<$str = _::blessed $_>
-= C<$str = _::class $_>
+= C<$str = _::blessed $obj>
+= C<$str = _::blessed>
+= C<$str = _::class $obj>
+= C<$str = _::class>
 
-wrapper for C<Scalar::Util::blessed>
+Accesses the class of the provided object.
 
-= C<$bool = _::is_object $_>
+Wrapper for C<Scalar::Util::blessed>.
+
+B<$obj>:
+the object of which the class is to be determined.
+If omitted, uses C<$_>.
+
+B<returns>:
+The class of C<$obj> if that is a blessed scalar, else returns C<undef>.
+
+= C<$bool = _::is_object $scalar>
+= C<$bool = _::is_object>
 
 Checks that the argument is a blessed object.
-It's just an abbreviation for C<defined _::blessed $_>
+It's just an abbreviation for C<defined _::blessed $scalar>.
+
+B<$scalar>:
+the scalar which may or may not be a blessed object.
+
+B<returns>:
+a boolean indicating whether the C<$scalar> is a blessed object.
 
 = C<$bool = _::class_isa $class, $supertype>
 
 Checks that the C<$class> inherits from the given C<$supertype>, both given as strings.
 In most cases, one should use C<_::class_does> instead.
 
+B<$class>:
+the name of the class.
+
+B<$supertype>:
+the name of another class.
+
+B<returns>:
+a boolean indicating whether C<$class> inherits from C<$supertype>.
+
 = C<$bool = _::class_does $class, $role>
 
 Checks that the C<$class> performs the given C<$role>, both given as strings.
+This means that the C<$class> has a compatible interface to the C<$role>.
+However, this does not require that the C<$class> inherits from the C<$role>.
+
+B<$class>:
+the name of the class.
+
+B<$role>:
+the name of a role.
+
+B<returns>:
+a boolean indicating whether C<$class> conforms to the C<$role>.
 
 = C<$bool = _::isa $object, $class>
 
 Checks that the C<$object> inherits from the given class.
 In most cases, one should use C<_::does> or C<_::is_instance> instead.
 
-= C<$code = _::can $object, 'method'>
+B<$object>:
+a scalar possibly containing an object.
 
-Checks that the given C<$object> can perform the C<method>.
-Returns C<undef> on failure, or the appropriate code ref on success,
-so that one can do C<< $object->$code(@args) >> afterwards.
+B<$class>:
+the name of a class:
+
+B<returns>:
+a boolean indicating whether the C<$object> inherits from the given C<$class>.
+Returns false if the C<$object> parameter isn't actually an object.
+
+= C<$code = _::can $object, $method>
+
+Checks that the object can perform the given method.
+
+    if (my $code = _::can $object, $method) {
+        $object->$method(@args);
+    }
+
+B<$object>:
+a scalar.
+
+B<$method>:
+the name of the method to search.
+
+B<returns>:
+if the C<$object> can perform the C<$method>, this returns a reference to that method.
+A false value is returned in all other cases (the object doesn't know about that method, or the C<$object> argument doesn't actually hold an object).
 
 = C<$bool = _::is_instance $object, $role>
-
 = C<$bool = _::does $object, $role>
 
 Checks that the given C<$object> can perform the C<$role>.
+
+B<$object>:
+a scalar possibly containing an object.
+
+B<$role>:
+the name of a role.
+
+B<returns>:
+a boolean value indicating whether the given C<$object> conforms to the C<$role>.
 
 = C<< any = $maybe_object->_::safecall(method => @args) >>
 

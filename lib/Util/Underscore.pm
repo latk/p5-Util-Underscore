@@ -86,14 +86,115 @@ BEGIN {
 
 The function reference is split into separate topics which each have their own documentation:
 
-=for :list
-* scalars (L<Util::Underscore::Scalars|Util::Underscore::Scalars>)
-* numbers (L<Util::Underscore::Numbers|Util::Underscore::Numbers>)
-* references (L<Util::Underscore::References|Util::Underscore::References>)
-* objects (L<Util::Underscore::Objects|Util::Underscore::Objects>)
-* list utils (L<Util::Underscore::ListUtils|Util::Underscore::ListUtils>)
-* Exception handling (this document)
-* Miscellaneous functions (this document)
+=begin :list
+
+= Scalars
+
+see L<Util::Underscore::Scalars|Util::Underscore::Scalars>
+
+C<alias>,
+C<const>,
+C<is_dual>,
+C<is_identifier>,
+C<is_package>,
+C<is_plain>,
+C<is_readonly>,
+C<is_string>,
+C<is_tainted>,
+C<is_vstring>,
+C<new_dual>
+
+= Numbers
+
+see L<Util::Underscore::Numbers|Util::Underscore::Numbers>
+
+C<ceil>,
+C<floor>,
+C<is_int>,
+C<is_numeric>,
+C<is_uint>
+
+= References
+
+see L<Util::Underscore::References|Util::Underscore::References>
+
+C<ref_addr>,
+C<ref_is_weak>,
+C<ref_type>,
+C<ref_unweaken>,
+C<ref_weaken>
+
+= Objects
+
+see L<Util::Underscore::Objects|Util::Underscore::Objects>
+
+C<blessed>,
+C<can>,
+C<class>,
+C<class_does>,
+C<class_isa>,
+C<does>,
+C<is_instance>,
+C<is_object>,
+C<isa>,
+C<safecall>
+
+= List Utils
+
+see L<Util::Underscore::ListUtils|Util::Underscore::ListUtils>
+
+C<all>,
+C<any>,
+C<each_array>,
+C<first>,
+C<first_index>,
+C<last>,
+C<last_index>,
+C<max>,
+C<max_str>,
+C<min>,
+C<min_str>,
+C<natatime>,
+C<none>,
+C<pairfirst>,
+C<pairgrep>,
+C<pairmap>,
+C<part>,
+C<product>,
+C<reduce>,
+C<shuffle>,
+C<sum>,
+C<uniq>,
+C<zip>
+
+= Exception handling
+
+see below
+
+C<carp>,
+C<carpf>,
+C<catch>,
+C<cluck>,
+C<cluckf>,
+C<confess>,
+C<confessf>,
+C<croak>,
+C<croakf>,
+C<finally>,
+C<try>
+
+= Miscellaneous Functions
+
+see below
+
+C<dd>,
+C<Dir>,
+C<File>,
+C<is_open>,
+C<pp>,
+C<prototype>
+
+=end :list
 
 =cut
 

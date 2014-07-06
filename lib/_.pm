@@ -8,8 +8,6 @@ package _;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('0.1.0');
-
 use Carp ();
 
 my $blow_up = sub {

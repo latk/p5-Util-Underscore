@@ -1,4 +1,4 @@
-vXXX        XXXX-XX-XX
+v1.2.0        XXXX-XX-XX
 
     [New Functionality]
 
@@ -12,6 +12,8 @@ vXXX        XXXX-XX-XX
 
     - The is_* validation functions handle undef input without warnings now.
 
+    - References: ref-refs are now handled correctly: "_::is_scalar_ref \\1" is true, and "_::ref_type \\1" is "REF".
+
     [Other Changes]
 
     - Tightened dependencies to decrease chance of test failures.
@@ -19,6 +21,10 @@ vXXX        XXXX-XX-XX
     - Added a "_.pm" file to reduce clashes.
 
     - Removed documentation for _::package which never existed.
+
+    - Rewrote parts of the docs in a more formal fashion.
+
+    - Split the docs by topic into separate files.
 
 v1.1.1      2014-03-19
 

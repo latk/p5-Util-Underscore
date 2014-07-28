@@ -1,8 +1,8 @@
-v1.2.0        XXXX-XX-XX
+v1.2.0        2014-07-28
 
     [New Functionality]
 
-    - Scalars: added is_string, alias from Data::Alias, const from Const::Fast.
+    - Scalars: added is_string, is_bool, alias from Data::Alias, const from Const::Fast.
 
     - Numbers: added floor, ceil.
 
@@ -18,7 +18,7 @@ v1.2.0        XXXX-XX-XX
 
     - Tightened dependencies to decrease chance of test failures.
 
-    - Added a "_.pm" file to reduce clashes.
+    - Added a "_.pm" file to reduce clashes. I apologize for polluting your file system with such a weird file.
 
     - Removed documentation for _::package which never existed.
 

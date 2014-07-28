@@ -238,11 +238,12 @@ a boolean indicating whether the given string looks like a package name.
 =cut
 
 ## no critic (ProhibitMultiplePackages)
-package # hide from PAUSE
+package    # hide from PAUSE
     _;
 
 ## no critic (RequireArgUnpacking, RequireFinalReturn, ProhibitSubroutinePrototypes)
 
+## no critic (ProtectPrivateVars)
 $Util::Underscore::_ASSIGN_ALIASES->('Scalar::Util', new_dual => 'dualvar');
 
 sub is_dual(_) {
@@ -257,13 +258,14 @@ sub is_readonly(_) {
     goto &Scalar::Util::readonly;
 }
 
+## no critic (ProtectPrivateVars)
 $Util::Underscore::_ASSIGN_ALIASES->('Const::Fast', const => 'const');
 
 sub is_tainted (_) {
     goto &Scalar::Util::tainted;
 }
 
-
+## no critic (ProtectPrivateVars)
 $Util::Underscore::_ASSIGN_ALIASES->('Data::Alias', alias => 'alias');
 
 sub is_plain(_) {

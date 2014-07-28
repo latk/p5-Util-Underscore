@@ -90,9 +90,10 @@ wrapper for C<List::MoreUtils::each_arrayref>
 =cut
 
 ## no critic (ProhibitMultiplePackages)
-package # hide from PAUSE
+package    # hide from PAUSE
     _;
 
+## no critic (ProtectPrivateVars)
 $Util::Underscore::_ASSIGN_ALIASES->(
     'List::Util',
     reduce    => 'reduce',
@@ -111,6 +112,7 @@ $Util::Underscore::_ASSIGN_ALIASES->(
     shuffle   => 'shuffle',
 );
 
+## no critic (ProtectPrivateVars)
 $Util::Underscore::_ASSIGN_ALIASES->(
     'List::MoreUtils',
     first       => 'first_value',

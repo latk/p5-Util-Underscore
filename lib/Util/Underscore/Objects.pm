@@ -133,7 +133,7 @@ In scalar context, this evaluates to C<undef>, in list context this is the empty
 =cut
 
 ## no critic (ProhibitMultiplePackages)
-package # hide from PAUSE
+package    # hide from PAUSE
     _;
 
 ## no critic (RequireArgUnpacking, RequireFinalReturn, ProhibitSubroutinePrototypes)

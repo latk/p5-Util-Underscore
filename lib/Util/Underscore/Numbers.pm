@@ -91,7 +91,7 @@ If the C<$float> is not a finite number (i.e. infinite or NaN), then that input 
 =cut
 
 ## no critic (ProhibitMultiplePackages)
-package # hide from PAUSE
+package    # hide from PAUSE
     _;
 
 ## no critic (RequireArgUnpacking, RequireFinalReturn, ProhibitSubroutinePrototypes)

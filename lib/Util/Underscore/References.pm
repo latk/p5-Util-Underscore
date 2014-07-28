@@ -120,7 +120,7 @@ It will not be checked that an object claims to perform an appropriate role (e.g
 =cut
 
 ## no critic (ProhibitMultiplePackages)
-package # hide from PAUSE
+package    # hide from PAUSE
     _;
 
 ## no critic (RequireArgUnpacking, RequireFinalReturn, ProhibitSubroutinePrototypes)
@@ -206,16 +206,3 @@ sub is_regex(_) {
 }
 
 1;
-
-
-
-
-
-
-
-
-
-
-
-
-

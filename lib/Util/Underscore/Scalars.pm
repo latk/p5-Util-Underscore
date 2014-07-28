@@ -191,6 +191,23 @@ the scalar to check for stringiness.
 B<returns>:
 a boolean indicating whether the scalar is string-like.
 
+= C<$bool = _::is_bool $scalar>
+= C<$bool = _::is_bool>
+
+Checks that the value is intended to be usable as a boolean:
+The argument can either be a non-reference (i.e. plain scalar or undef), or can be an object that overloads C<bool>.
+
+This does not check that the argument is some specific value such as C<1> or C<0>.
+Note also that I<any> value will be interpreted as a boolean by Perl, but not by this function.
+For example plain references are true-ish, while this function would not consider them to be a valid boolean value.
+
+B<$scalar>:
+the scalar to check.
+If omitted, uses C<$_>.
+
+B<returns>:
+a boolean indicating whether the given C<$scalar> can be considered to be a boolean by the rules of this function.
+
 = C<$bool = _::is_identifier $string>
 = C<$bool = _::is_identifier $>
 
@@ -258,6 +275,11 @@ sub is_string(_) {
     defined $_[0]
         && (!defined ref_type $_[0]
         || overload::Method($_[0], q[""]));
+}
+
+sub is_bool(_) {
+    !defined ref_type $_[0]
+        || overload::Method($_[0], q[bool]);
 }
 
 sub is_identifier(_) {

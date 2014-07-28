@@ -7,7 +7,7 @@ package Util::Underscore;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('v1.1.1');
+use version 0.77; our $VERSION = qv('v1.2.0');
 use overload ();
 
 use Carp ();
@@ -100,6 +100,7 @@ C<is_package>,
 C<is_plain>,
 C<is_readonly>,
 C<is_string>,
+C<is_bool>,
 C<is_tainted>,
 C<is_vstring>,
 C<new_dual>

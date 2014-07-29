@@ -20,10 +20,10 @@ subtest 'Carp identity tests' => sub {
 
 subtest 'formatted Carp functions' => sub {
     plan tests => 4;
-    warning_is { _::carpf "1%s3",  2, 4 } '123', "_::carpf";
-    warning_is { _::cluckf "1%s3", 2, 4 } '123', "_::cluckf";
-    throws_ok { _::croakf "1%s3",   2, 4 } qr/^123\b/, "_::croakf";
-    throws_ok { _::confessf "1%s3", 2, 4 } qr/^123\b/, "_::confessf";
+    warning_is { _::carpf "1%s3%d",  2, 4 } '1234', "_::carpf";
+    warning_is { _::cluckf "1%s3%d", 2, 4 } '1234', "_::cluckf";
+    throws_ok { _::croakf "1%s3%d",   2, 4 } qr/^1234\b/, "_::croakf";
+    throws_ok { _::confessf "1%s3%d", 2, 4 } qr/^1234\b/, "_::confessf";
 };
 
 subtest 'Try::Tiny identity tests' => sub {

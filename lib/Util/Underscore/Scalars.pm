@@ -209,7 +209,7 @@ B<returns>:
 a boolean indicating whether the given C<$scalar> can be considered to be a boolean by the rules of this function.
 
 = C<$bool = _::is_identifier $string>
-= C<$bool = _::is_identifier $>
+= C<$bool = _::is_identifier>
 
 Checks that the given string would be a legal identifier:
 a letter followed by zero or more word characters.
@@ -232,6 +232,37 @@ a string possibly containing a package name.
 
 B<returns>:
 a boolean indicating whether the given string looks like a package name.
+
+= C<$str = _::chomp>
+= C<$str = _::chomp $line>
+= C<$str = _::chomp $line, $end>
+= C<$str_array = _::chomp \@lines>
+= C<$str_array = _::chomp \@lines, $end>
+
+Performs the C<chomp> builtin on a I<copy> of the input – this will not modify the input.
+
+B<$line>, B<\@lines>:
+a string or a reference to an array of strings.
+These will not be modified.
+If omitted, uses C<$_>.
+
+B<$end>:
+a string designating the I<input record separator>.
+If not specified, uses C<$/>.
+
+B<returns>:
+If given a single C<$line>, returns a copy of that string with the C<end> removed.
+If given multiple C<\@lines>, returns an array reference containing copies of the input lines, with the C<$end> removed from each copy.
+
+Examples:
+
+    # assuming the default $/ = "\n":
+    _::chomp ["foo\n", "bar", "baz\n"];
+    #=> ["foo", "bar", "baz"]
+    
+    # removing a custom terminator:
+    _::chomp "foobar", "bar";
+    #=> "foo"
 
 =end :list
 

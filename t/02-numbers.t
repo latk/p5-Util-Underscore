@@ -133,7 +133,7 @@ subtest '_::ceil' => sub {
     # technically, we also should test for very large numbers
     # where floating point inaccuracies become important
     is _::ceil 0,    0, 'zero';
-    is _::ceil "-0", 0, '-zero';
+    is 0+_::ceil "-0", 0, '-zero';
     is _::ceil 'Inf',  0 + 'Inf',  '+Infinity';
     is _::ceil '-Inf', 0 + '-Inf', '-Infinity';
     is _::ceil 'NaN',  0 + 'NaN',  'NaN';
@@ -154,7 +154,7 @@ subtest '_::floor' => sub {
     # technically, we also should test for very large numbers
     # where floating point inaccuracies become important
     is _::floor 0,    0, 'zero';
-    is _::floor "-0", 0, '-zero';
+    is 0+_::floor "-0", 0, '-zero';
     is _::floor 'Inf',  0 + 'Inf',  '+Infinity';
     is _::floor '-Inf', 0 + '-Inf', '-Infinity';
     is _::floor 'NaN',  0 + 'NaN',  'NaN';

@@ -233,6 +233,26 @@ a string possibly containing a package name.
 B<returns>:
 a boolean indicating whether the given string looks like a package name.
 
+= C<$pos = _::index $haystack, $needle>
+= C<$pos = _::index $haystack, $needle, $start>
+
+Wraps the builtin C<index> function to return C<undef> rather than C<-1> if the C<$needle> wasn't found in the C<$haystack>.
+
+B<$haystack>:
+a string in which to search.
+
+B<$needle>:
+a string for which to search.
+
+B<$start>:
+the position at which to start searching.
+This must be a non-negative integer.
+Defaults to zero.
+
+B<returns>:
+The position at which the C<$needle> was found in the C<$haystack>,
+If no match was found, returns C<undef>.
+
 =end :list
 
 =cut

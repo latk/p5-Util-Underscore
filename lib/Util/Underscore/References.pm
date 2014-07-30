@@ -133,6 +133,22 @@ sub ref_type(_) {
     goto &Scalar::Util::reftype;
 }
 
+BEGIN {
+    # perl 5.10 thinks reftype qr// eq 'SCALAR'.
+    # This is bogus, we'll have to correct that.
+    if ($^V < 5.011) {
+        no warnings 'redefine';
+        *ref_type = sub (_) {
+            my $type = &Scalar::Util::reftype;
+            return 'REGEXP'
+                if defined $type
+                and $type eq 'SCALAR'
+                and ref $_[0] eq 'Regexp';
+            return $type;
+        };
+    }
+}
+
 sub ref_weaken(_) {
     goto &Scalar::Util::weaken;
 }

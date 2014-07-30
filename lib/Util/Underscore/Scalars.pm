@@ -354,7 +354,7 @@ sub index($$;$) {
     if (@_ >= 3 and $_[2] < 0) {
         Carp::croak q(_::index: starting position must be non-negative.)
     }
-    my $result = &CORE::index;
+    my $result = CORE::index($_[0], $_[1], $_[2] // 0);
     return ($result >= 0) ? $result : undef;
 }
 

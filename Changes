@@ -1,3 +1,11 @@
+v1.2.1        2014-07-30
+
+    [Bugfixes]
+
+    - Tests now pass on all supported platforms
+
+    - "_::ref_type qr//" properly returns "REGEXP" even on Perl 5.10
+
 v1.2.0        2014-07-28
 
     [New Functionality]

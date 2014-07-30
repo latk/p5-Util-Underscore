@@ -294,4 +294,40 @@ sub is_package(_) {
         && scalar($_[0] =~ /\A [^\W\d]\w* (?: [:][:]\w+ )* \z/xsm);
 }
 
+sub chomp(_;$) {
+
+    # localizedly set the input record separator
+    local $/ = $/;
+    if (@_ > 1) {
+        if (_::is_string $_[1]) {
+            $/ = "$_[1]";
+        }
+        else {
+            Carp::croak q(_::chomp: second argument must be a string);
+        }
+    }
+
+    # handle a single string
+    # ATTENTION: this depends on _::is_string
+    if (_::is_string $_[0]) {
+        CORE::chomp(my $copy = $_[0]);
+        return $copy;
+    }
+
+    # handle an arrayref of strings (effectively auto-mapping)
+    # ATTENTION: _::is_array_ref will be defined later
+    elsif (_::is_array_ref($_[0])) {
+        my @result = @{ $_[0] };
+        for (@result) {
+            goto ERROR if not _::is_string;
+            CORE::chomp;
+        }
+        return \@result;
+    }
+
+    ERROR:
+    Carp::croak
+        q(_::chomp: first argument must be string or arrayref of strings);
+}
+
 1;

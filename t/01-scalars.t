@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Exception;
 
 use Util::Underscore;
@@ -234,4 +234,31 @@ subtest '_::is_package' => sub {
     ok !_::is_package q(Foo'Bar),  "negative single quote separator";
     ok _::is_package,  "positive implicit argument" for 'foo';
     ok !_::is_package, "negative implicit argument" for undef;
+};
+
+subtest '_::chomp' => sub {
+    plan tests => 8;
+    my $end = 'bar';
+    my $str  = 'foobarbar';
+    my $expected_str  = 'foobar';
+    my @strs = qw/ foobarbar wunderbar /;
+    my @expected_strs = qw/ foobar wunder /;
+
+    my $before = $str;
+    _::chomp $str, $end;
+    is $str, $before, "scalar arguments remain unchanged";
+
+    $before = \@strs;
+    _::chomp \@strs, $end;
+    is_deeply \@strs, $before, "array arguments remain unchanged";
+
+    is +(_::chomp $str, $end), $expected_str, "positive scalar with explicit \$end";
+    is_deeply +(_::chomp \@strs, $end), \@expected_strs, "positive array with explicit \$end";
+
+    local $/ = $end;
+    is +(_::chomp $str), $expected_str, "positive scalar with implicit \$end";
+    is_deeply +(_::chomp \@strs), \@expected_strs, "positive array with implicit \$end";
+
+    is _::chomp, $expected_str, "positive implicit scalar" for $str;
+    is_deeply _::chomp, \@expected_strs, "positive implicit array" for \@strs;
 };

@@ -330,4 +330,6 @@ sub chomp(_;$) {
         q(_::chomp: first argument must be string or arrayref of strings);
 }
 
+sub index($$;$);
+
 1;

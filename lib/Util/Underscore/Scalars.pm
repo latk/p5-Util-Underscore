@@ -330,6 +330,12 @@ sub chomp(_;$) {
         q(_::chomp: first argument must be string or arrayref of strings);
 }
 
-sub index($$;$);
+sub index($$;$) {
+    if (@_ >= 3 and $_[2] < 0) {
+        Carp::croak q(_::index: starting position must be non-negative.)
+    }
+    my $result = &CORE::index;
+    return ($result >= 0) ? $result : undef;
+}
 
 1;

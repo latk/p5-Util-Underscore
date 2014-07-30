@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Test::Exception;
 
 use Util::Underscore;
@@ -261,4 +261,22 @@ subtest '_::chomp' => sub {
 
     is _::chomp, $expected_str, "positive implicit scalar" for $str;
     is_deeply _::chomp, \@expected_strs, "positive implicit array" for \@strs;
+};
+
+subtest '_::index' => sub {
+    plan tests => 7;
+    my $haystack = 'foobar';
+    my ($needle_start,  $pos_start)  = ('foo', 0);
+    my ($needle_middle, $pos_middle) = ('bar', 3);
+    my ($needle_nether, $pos_nether) = ('baz', undef);
+
+    is +(_::index $haystack, $needle_start),  $pos_start, "positive start with implicit \$start";
+    is +(_::index $haystack, $needle_middle), $pos_middle, "positive middle with implicit \$start";
+
+    is +(_::index $haystack, $needle_start,  $pos_start),  $pos_start,  "positive start with explicit \$start=start";
+    is +(_::index $haystack, $needle_middle, $pos_start),  $pos_middle, "positive middle with explicit \$start=start";
+    is +(_::index $haystack, $needle_middle, $pos_middle), $pos_middle, "positive middle with explicit \$start=middle";
+
+    is +(_::index $haystack, $needle_nether), $pos_nether, "negative nether with implicit \$start";
+    is +(_::index $haystack, $needle_start, $pos_middle), $pos_nether, "negative start with explicit \$start=middle";
 };

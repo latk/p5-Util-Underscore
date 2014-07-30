@@ -264,6 +264,26 @@ Examples:
     _::chomp "foobar", "bar";
     #=> "foo"
 
+= C<$pos = _::index $haystack, $needle>
+= C<$pos = _::index $haystack, $needle, $start>
+
+Wraps the builtin C<index> function to return C<undef> rather than C<-1> if the C<$needle> wasn't found in the C<$haystack>.
+
+B<$haystack>:
+a string in which to search.
+
+B<$needle>:
+a string for which to search.
+
+B<$start>:
+the position at which to start searching.
+This must be a non-negative integer.
+Defaults to zero.
+
+B<returns>:
+The position at which the C<$needle> was found in the C<$haystack>,
+If no match was found, returns C<undef>.
+
 =end :list
 
 =cut
@@ -359,6 +379,14 @@ sub chomp(_;$) {
     ERROR:
     Carp::croak
         q(_::chomp: first argument must be string or arrayref of strings);
+}
+
+sub index($$;$) {
+    if (@_ >= 3 and $_[2] < 0) {
+        Carp::croak q(_::index: starting position must be non-negative.)
+    }
+    my $result = CORE::index($_[0], $_[1], $_[2] // 0);
+    return ($result >= 0) ? $result : undef;
 }
 
 1;

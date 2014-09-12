@@ -168,6 +168,15 @@ C<sum>,
 C<uniq>,
 C<zip>
 
+see L<Util::Underscore::ListUtilsBy|Util::Underscore::ListUtilsBy>
+
+C<max_by>,
+C<max_str_by>,
+C<min_by>,
+C<min_str_by>,
+C<uniq_by>,
+C<classify>
+
 = Exception handling
 
 see below

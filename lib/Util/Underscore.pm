@@ -103,7 +103,9 @@ C<is_string>,
 C<is_bool>,
 C<is_tainted>,
 C<is_vstring>,
-C<new_dual>
+C<new_dual>,
+C<chomp>,
+C<index>
 
 = Numbers
 

@@ -18,7 +18,7 @@ sub of {
 sub package { }
 
 # 1
-sub filename { }
+sub file { }
 
 # 2
 sub line { }
@@ -33,7 +33,10 @@ sub has_args { }
 sub wantarray { }
 
 # _, 3, 6, 7
-sub is_eval { }
+sub is_eval {
+    # FIXME mock
+    return bless [] => 'Util::Underscore::CallStackFrame::Eval';
+}
 
 # 6
 sub is_require { }
@@ -50,7 +53,7 @@ sub hinthash { }
 package Util::Underscore::CallStackFrame::Eval;
 
 # 0
-sub text { }
+sub source { }
 
 # 1
 sub  is_require { }

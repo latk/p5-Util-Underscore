@@ -16,25 +16,25 @@ subtest 'constructor' => sub {
     isa_ok $class->of(0), $class;
     my $call_depth = 0;
     $call_depth++ while caller $call_depth;
-    is_deeply $class->of($call_depth), undef;
+    is_deeply $class->of($call_depth), undef, "constructor returns undef if there's no frame";
 };
 
 subtest 'package' => sub {
     plan tests => 1;
     
-    is $class->of(0)->package, __PACKAGE__;
+    is $class->of(0)->package, __PACKAGE__, "correct return value";
 };
 
 subtest 'file' => sub {
     plan tests => 1;
     
-    is $class->of(0)->file, __FILE__;
+    is $class->of(0)->file, __FILE__, "correct return value";
 };
 
 subtest 'line' => sub {
     plan tests => 1;
     
-    is $class->of(0)->line, __LINE__;
+    is $class->of(0)->line, __LINE__, "correct return value";
 };
 
 subtest 'subroutine' => sub {
@@ -45,26 +45,26 @@ subtest 'subroutine' => sub {
     die $@ if $@;
     my $anon = sub { $class->of(0) };
     
-    is freddy()->subroutine, 'freddy';
-    is $anon->()->subroutine, '__ANON__';
+    is freddy()->subroutine, 'freddy', "named sub";
+    is $anon->()->subroutine, '__ANON__', "anon sub";
     
     my $unknown = \&freddy;
     undef *freddy;
-    is $unknown->()->subroutine, '(unknown)';
+    is $unknown->()->subroutine, '(unknown)', "deleted sub";
 };
 
 subtest 'has_args' => sub {
     plan tests => 3;
     
     my $sub = sub { $class->of(0) };
-    ok not($sub->()->has_args);
-    ok $sub->(undef)->has_args;
+    ok not($sub->()->has_args), "no arguments";
+    ok $sub->(undef)->has_args, "undef argument";
     my @args = (
         [1, 2],
         { a => 42 },
         undef,
     );
-    is_deeply scalar($sub->(@args)->has_args), \@args;
+    is_deeply scalar($sub->(@args)->has_args), \@args, "complicated arguments";
 };
 
 subtest 'wantarray' => sub {
@@ -74,14 +74,14 @@ subtest 'wantarray' => sub {
     my $sub = sub { $obj = $class->of(0) };
     
     () = $sub->();
-    ok $obj->wantarray;
+    ok $obj->wantarray, "list context";
     
     scalar $sub->();
-    ok not($obj->wantarray);
-    ok defined $obj->wantarray;
+    ok not($obj->wantarray), "scalar context is false";
+    ok defined $obj->wantarray, "scalar context is defined";
     
     $sub->();
-    ok not defined $obj->wantarray;
+    ok not defined $obj->wantarray, "scalar context is undef";
 };
 
 subtest 'is_eval, is_require' => sub {
@@ -92,18 +92,18 @@ subtest 'is_eval, is_require' => sub {
     my $code = q{ $class->of(0) };
     my $eval_string = sub { eval $code };
     
-    ok not($sub->()->is_eval);
-    ok $eval_block->()->is_eval();
-    ok $eval_string->()->is_eval();
+    ok not($sub->()->is_eval), "ordinary frame not is_eval";
+    ok $eval_block->()->is_eval(), "block-eval is_eval";
+    ok $eval_string->()->is_eval(), "string-eval is_eval";
     
-    is $eval_block->()->is_eval->source, undef;
-    is $eval_string->()->is_eval->source, $code;
+    is $eval_block->()->is_eval->source, undef, "block-eval has no source";
+    is $eval_string->()->is_eval->source, $code, "string-eval has correct source";
     
-    ok not($eval_block->()->is_eval->is_require);
-    ok not($eval_string->()->is_eval->is_require);
+    ok not($eval_block->()->is_eval->is_require), "block-eval not (is_eval AND is_require)";
+    ok not($eval_string->()->is_eval->is_require), "string-eval not (is_eval AND is_require)";
     
-    ok not($eval_block->()->is_require);
-    ok not($eval_string->()->is_require);
+    ok not($eval_block->()->is_require), "block-eval not is_require";
+    ok not($eval_string->()->is_require), "string-eval not is_require";
     
     # What follows is a horrible hack to simulate a require without using
     # an external file. Basically. you can put callbacks into `@INC` which are
@@ -143,30 +143,30 @@ subtest 'is_eval, is_require' => sub {
     }
     
     my $obj = Local::Whatever::get();
-    ok $obj->is_eval;
-    ok $obj->is_eval->is_require;
-    ok $obj->is_require;
+    ok $obj->is_eval, "require is_eval";
+    ok $obj->is_eval->is_require, "require is_eval AND is_require";
+    ok $obj->is_require, "require is_require";
 };
 
 subtest 'hints' => sub {
     plan tests => 1;
     
     my $obj = $class->of(0);
-    is_deeply $obj->hints, $^H;
+    is_deeply $obj->hints, $^H, "correct hints scalar";
 };
 
 subtest 'bitmask' => sub {
     plan tests => 1;
     
     my $obj = $class->of(0);
-    is_deeply $obj->bitmask, ${^WARNING_BITS};
+    is_deeply $obj->bitmask, ${^WARNING_BITS}, "correct warning bits";
 };
 
 subtest 'hinthash' => sub {
     plan tests => 1;
     
     my $obj = $class->of(0);
-    is_deeply $obj->hinthash, \%^H;
+    is_deeply $obj->hinthash, \%^H, "correct hint hash";
 };
 
 subtest 'stack frames obtained correctly' => sub {

@@ -331,19 +331,6 @@ Creates a new L<Path::Class::File|Path::Class::File> instance.
 
 =end :list
 
-C<Data::Dump> is an alternative to C<Data::Dumper>.
-The main difference is the output format: C<Data::Dump> output tends to be easier to read.
-
-=begin :list
-
-= C<$str = _::pp @values>
-wrapper for C<Data::Dump::pp>
-
-= C<_::dd @values>
-wrapper for C<Data::Dump::dd>.
-
-=end :list
-
 =cut
 
 $_ASSIGN_ALIASES->('Scalar::Util', is_open => 'openhandle');
@@ -374,11 +361,72 @@ sub File(@) {    ## no critic (NamingConventions::Capitalization)
     Path::Class::File->new(@_);
 }
 
+=pod
+
+C<Data::Dump> is an alternative to C<Data::Dumper>.
+The main difference is the output format: C<Data::Dump> output tends to be easier to read.
+
+=begin :list
+
+= C<$str = _::pp @values>
+wrapper for C<Data::Dump::pp>
+
+= C<_::dd @values>
+wrapper for C<Data::Dump::dd>.
+
+=end :list
+
+=cut
+
 $_ASSIGN_ALIASES->(
     'Data::Dump',
     pp => 'pp',
     dd => 'dd',
 );
+
+=pod
+
+This module also includes an object-oriented interface to the callstack.
+See L<Util::Underscore::CallStackFrame|Util::Underscore::CallStackFrame> for further details.
+
+=begin :list
+
+= C<@stack_frames = _::callstack>
+= C<@stack_frames = _::callstack $start_from_level>
+
+Assembles a list of call stack frames.
+
+B<$start_from_level>:
+The level starting from which frames should be constructed.
+For example, C<1> would start from the immediate caller, whereas C<0> includes the current frame as well.
+If ommited, uses C<1>.
+
+B<returns>:
+A list of C<Util::Underscore::CallStackFrame> objects.
+
+=C<$stack_frame = _::caller>
+=C<$stack_frame = _::caller $level>
+
+Assembles an object representing a specific call stack frame.
+
+B<$level>:
+The level of which the call stack frame is to be returned.
+A value of C<1> would return the immediate caller, whereas C<0> would indicate the current frame.
+If ommited, uses C<1>.
+
+B<returns>:
+A C<Util::Underscore::CallStackFrame> instance representing the requested stack frame.
+If no such frame exists, C<undef> is returned.
+
+=end :list
+
+=cut
+
+sub caller(;$) {
+}
+
+sub callstack(;$) {
+}
 
 =head1 RATIONALE
 

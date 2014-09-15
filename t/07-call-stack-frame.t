@@ -41,11 +41,12 @@ subtest 'line' => sub {
 subtest 'subroutine' => sub {
     plan tests => 2;
 
+    ## no critic (ProhibitMultiplePackages)
     package Local::SomeTest;
 
     my $package = __PACKAGE__;
     local *freddy;
-    eval q{ sub freddy { $class->of(0) } };
+    eval q{ sub freddy { $class->of(0) } };  ## no critic (ProhibitStringyEval)
     die $@ if $@;
     my $anon = sub { $class->of(0) };
 
@@ -88,7 +89,7 @@ subtest 'is_eval, is_require' => sub {
         eval { $class->of(0) };
     };
     my $code = q{ $class->of(0) };
-    my $eval_string = sub { eval $code };
+    my $eval_string = sub { eval $code };  ## no critic (ProhibitStringyEval
 
     ok not($sub->()->is_eval), "ordinary frame not is_eval";
     ok $eval_block->()->is_eval(),  "block-eval is_eval";
@@ -172,7 +173,10 @@ subtest 'hinthash' => sub {
     plan tests => 1;
 
     # make sure %^H isn't empty
-    BEGIN { $^H{'Local::TestPackage/value'} = 42 }
+    BEGIN {
+        ## no critic (RequireLocalizedPunctuationVars)
+        $^H{'Local::TestPackage/value'} = 42;
+    }
     BEGIN { $hinthash = \%^H }
     my $obj = (sub { $class->of(0) })->();
     is_deeply $obj->hinthash, $hinthash, "correct hint hash";
@@ -197,12 +201,12 @@ subtest 'stack frames obtained correctly' => sub {
 };
 
 {
-
+    ## no critic (ProhibitMultiplePackages)
     package Local::TestPackage;
 
     sub foo {
         my ($expect_a, $expect_b) = @_;
-        my $sub = sub { $class->of(shift) };
+        my $sub = sub { $class->of(shift) };  ## no critic (RequireArgUnpacking)
         my @frames;
         #>>> formatting is important
         push @frames, [ $sub->(0), __PACKAGE__, __FILE__,  __LINE__, 'Local::TestPackage::__ANON__' ];
@@ -212,6 +216,7 @@ subtest 'stack frames obtained correctly' => sub {
         return @frames;
     }
 
+    ## no critic (RequireArgUnpacking)
     sub bar {
         #>>> formatting is important
         return foo([ __PACKAGE__, __FILE__, __LINE__, 'Local::TestPackage::foo' ], @_);

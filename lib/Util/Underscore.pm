@@ -422,6 +422,7 @@ If no such frame exists, C<undef> is returned.
 
 =cut
 
+## no critic (ProhibitBuiltinHomonyms)
 sub caller(;$) {
     require Util::Underscore::CallStackFrame;
     Util::Underscore::CallStackFrame->of(@_ ? shift() + 1 : 1);

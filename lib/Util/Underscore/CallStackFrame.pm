@@ -1,10 +1,19 @@
 package Util::Underscore::CallStackFrame;
+
 #ABSTRACT: object-oriented wrapper for "caller" builtin
 
 use strict;
 use warnings;
 
 use Carp ();
+
+## no critic (RequireFinalReturn)
+# reason: performance and terse code.
+# All methods are supposed to return something.
+
+## no critic (ProhibitMagicNumbers)
+# reason: the "caller" builtin is full of magic numbers.
+# This class wraps them so that users don't have to deal with them.
 
 =head1 SYNOPSIS
 
@@ -40,10 +49,10 @@ If no such level exists, C<undef> is returned.
 sub of {
     my ($class, $level) = @_;
 
-    package DB;
+    package DB;    ## no critic (ProhibitMUltiplePackages)
     my @caller = CORE::caller($level + 1);
-    return undef if not @caller;
-    push @caller, [@DB::args];
+    return if not @caller;
+    push @caller, [@DB::args];    ## no critic (ProhibitPackageVars)
     return bless \@caller => $class;
 }
 
@@ -68,6 +77,7 @@ This stack frame's package name, as a string.
 
 =cut
 
+## no critic (ProhibitBuiltinHomonyms)
 sub package { shift()->[0] }
 
 =pod
@@ -199,7 +209,7 @@ a boolean value.
 sub is_eval {
     my ($self) = @_;
     if ($self->[3] eq '(eval)') {
-        my $accessor_object = [ @{ $self }[6, 7] ];
+        my $accessor_object = [ @{$self}[ 6, 7 ] ];
         bless $accessor_object => 'Util::Underscore::CallStackFrame::_Eval';
         return $accessor_object;
     }
@@ -209,6 +219,7 @@ sub is_eval {
 }
 
 {
+    ## no critic (ProhibitMUltiplePackages)
     package Util::Underscore::CallStackFrame::_Eval;
 
     sub source { shift()->[0] }

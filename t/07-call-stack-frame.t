@@ -16,8 +16,8 @@ subtest 'constructor' => sub {
     isa_ok $class->of(0), $class;
     my $call_depth = 0;
     $call_depth++ while caller $call_depth;
-    is_deeply $class->of($call_depth), undef,
-        "constructor returns undef if there's no frame";
+    is_deeply [$class->of($call_depth)], [],
+        "constructor returns () if there's no frame";
 };
 
 subtest 'package' => sub {
@@ -141,7 +141,9 @@ subtest 'is_eval, is_require' => sub {
         };
 
         # execute the require, which launches the handler.
-        require Local::Whatever;
+        # this is an eval to hide it from autmatic dependency discovery
+        eval q{ require Local::Whatever };
+        die $@ if $@;
     }
 
     my $obj = Local::Whatever::get();

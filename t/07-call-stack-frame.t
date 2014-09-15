@@ -22,43 +22,42 @@ subtest 'constructor' => sub {
 subtest 'package' => sub {
     plan tests => 1;
     
-    is $class->of(0)->package, __PACKAGE__, "correct return value";
+    is sub { $class->of(0)->package }->(), __PACKAGE__, "correct return value";
 };
 
 subtest 'file' => sub {
     plan tests => 1;
     
-    is $class->of(0)->file, __FILE__, "correct return value";
+    is sub { $class->of(0)->file }->(), __FILE__, "correct return value";
 };
 
 subtest 'line' => sub {
     plan tests => 1;
     
-    is $class->of(0)->line, __LINE__, "correct return value";
+    is sub { $class->of(0)->line }->(), __LINE__, "correct return value";
 };
 
 subtest 'subroutine' => sub {
-    plan tests => 3;
+    plan tests => 2;
     
+    package Local::SomeTest;
+    
+    my $package = __PACKAGE__;
     local *freddy;
     eval q{ sub freddy { $class->of(0) } };
     die $@ if $@;
     my $anon = sub { $class->of(0) };
     
-    is freddy()->subroutine, 'freddy', "named sub";
-    is $anon->()->subroutine, '__ANON__', "anon sub";
-    
-    my $unknown = \&freddy;
-    undef *freddy;
-    is $unknown->()->subroutine, '(unknown)', "deleted sub";
+    Test::More::is freddy()->subroutine, "${package}::freddy", "named sub";
+    Test::More::is $anon->()->subroutine, "${package}::__ANON__", "anon sub";
 };
 
 subtest 'has_args' => sub {
     plan tests => 3;
     
     my $sub = sub { $class->of(0) };
-    ok not($sub->()->has_args), "no arguments";
-    ok $sub->(undef)->has_args, "undef argument";
+    ok not(&$sub->has_args), "no new argument list";
+    ok $sub->()->has_args, "new argument list";
     my @args = (
         [1, 2],
         { a => 42 },
@@ -74,14 +73,14 @@ subtest 'wantarray' => sub {
     my $sub = sub { $obj = $class->of(0) };
     
     () = $sub->();
-    ok $obj->wantarray, "list context";
+    ok scalar $obj->wantarray, "list context";
     
     scalar $sub->();
     ok not($obj->wantarray), "scalar context is false";
-    ok defined $obj->wantarray, "scalar context is defined";
+    ok defined($obj->wantarray), "scalar context is defined";
     
     $sub->();
-    ok not defined $obj->wantarray, "scalar context is undef";
+    ok not(defined $obj->wantarray), "scalar context is undef";
 };
 
 subtest 'is_eval, is_require' => sub {
@@ -148,38 +147,47 @@ subtest 'is_eval, is_require' => sub {
     ok $obj->is_require, "require is_require";
 };
 
+my $hints;
 subtest 'hints' => sub {
     plan tests => 1;
     
-    my $obj = $class->of(0);
-    is_deeply $obj->hints, $^H, "correct hints scalar";
+    BEGIN { $hints = $^H };
+    my $obj = sub { $class->of(0) }->();
+    is_deeply $obj->hints, $hints, "correct hints scalar";
 };
 
+my $bitmask;
 subtest 'bitmask' => sub {
     plan tests => 1;
     
-    my $obj = $class->of(0);
-    is_deeply $obj->bitmask, ${^WARNING_BITS}, "correct warning bits";
+    BEGIN { $bitmask = ${^WARNING_BITS} };
+    my $obj = sub { $class->of(0) }->();
+    is_deeply $obj->bitmask, $bitmask, "correct warning bits";
 };
 
+my $hinthash;
 subtest 'hinthash' => sub {
     plan tests => 1;
     
-    my $obj = $class->of(0);
-    is_deeply $obj->hinthash, \%^H, "correct hint hash";
+    # make sure %^H isn't empty
+    BEGIN { $^H{'Local::TestPackage/value'} = 42 };
+    BEGIN { $hinthash = \%^H };
+    my $obj = sub { $class->of(0) }->();
+    is_deeply $obj->hinthash, $hinthash, "correct hint hash";
 };
 
 subtest 'stack frames obtained correctly' => sub {
     plan tests => 3;
     
-    my @frames = Local::TestPackage::bar([__PACKAGE__, __FILE__, __LINE__]);
+    my @frames = Local::TestPackage::bar([__PACKAGE__, __FILE__, __LINE__, 'Local::TestPackage::bar']);
 
     for (my $i = 0; $i < @frames; $i++) {
         subtest "frame $i" => sub {
-            my ($obj, $package, $file, $line) = @{ $frames[$i] };
+            my ($obj, $package, $file, $line, $sub) = @{ $frames[$i] };
             is $obj->package, $package, "expected package";
             is $obj->file,    $file,    "expected file";
             is $obj->line,    $line,    "expected line";
+            is $obj->subroutine, $sub,  "expected sub name";
         };
     }
 };
@@ -188,12 +196,14 @@ subtest 'stack frames obtained correctly' => sub {
     package Local::TestPackage;
     sub foo {
         my ($expect_a, $expect_b) = @_;
-        return
-            [$class->of(0), __PACKAGE__, __FILE__, __LINE__],
-            [$class->of(1), @$expect_a],
-            [$class->of(2), @$expect_b];
+        my $sub = sub { $class->of(shift) };
+        my @frames;
+        push @frames, [$sub->(0), __PACKAGE__, __FILE__, __LINE__, 'Local::TestPackage::__ANON__'];
+        push @frames, [$sub->(1), @$expect_a];
+        push @frames, [$sub->(2), @$expect_b];
+        return @frames;
     };
     sub bar {
-        return foo([__PACKAGE__, __FILE__, __LINE__], @_);
+        return foo([__PACKAGE__, __FILE__, __LINE__, 'Local::TestPackage::foo'], @_);
     }
 }

@@ -423,9 +423,17 @@ If no such frame exists, C<undef> is returned.
 =cut
 
 sub caller(;$) {
+    require Util::Underscore::CallStackFrame;
+    Util::Underscore::CallStackFrame->of(@_ ? shift() + 1 : 1);
 }
 
 sub callstack(;$) {
+    my $level = @_ ? shift() + 1 : 1;
+    my @callers;
+    while (my $caller = Util::Underscore::CallStackFrame->of($level + @callers)) {
+        push @callers, $caller;
+    }
+    return @callers;
 }
 
 =head1 RATIONALE

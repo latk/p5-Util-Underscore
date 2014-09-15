@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 use Util::Underscore;
 
@@ -50,3 +50,60 @@ subtest '_::File' => sub {
     my $file = _::File "foo/bar", "baz.txt";
     isa_ok $file, 'Path::Class::File';
 };
+
+subtest '_::caller' => sub {
+    plan tests => 3;
+    
+    my $get_instance = sub { _::caller };
+    isa_ok $get_instance->(), 'Util::Underscore::CallStackFrame';
+    is $get_instance->()->line, __LINE__, "correct data";
+    my $get_instance2 = sub { sub { _::caller shift }->(@_) };
+    is $get_instance2->(1)->line, __LINE__, "depth handled correctly";
+};
+
+subtest '_::callstack' => sub {
+    plan tests => 2;
+    
+    subtest 'impicit argument' => sub {
+        my ($have, $expected) = test_callstack_implicit();
+        plan tests => 1 + @$expected;
+        
+        is 0+@$have, 0+@$expected, 'correct callstack depth';
+        for my $i (0 .. $#$expected) {
+            is $have->[$i]->subroutine, $expected->[$i]->[3], "correct sub name frame $i";
+        }
+    };
+    
+    subtest 'explicit argument' => sub {
+        my ($have, $expected) = test_callstack_explicit();
+        plan tests => 1 + 2 * @$expected;
+        
+        is 0+@$have, 0+@$expected, 'correct callstack depth';
+        for my $i (0 .. $#$expected) {
+            is $have->[$i]->subroutine, $expected->[$i]->[3], "correct sub name frame $i";
+            is $have->[$i]->line,       $expected->[$i]->[2], "correct line no frame $i";
+        }
+    }
+};
+
+sub test_callstack_implicit {
+    return sub {
+        return sub {
+            my @callers;
+            my $i = 0;
+            push @callers, [caller $i++] while caller $i;
+            return [_::callstack], \@callers;
+        }->();
+    }->();
+}
+
+sub test_callstack_explicit {
+    return sub {
+        return sub {
+            my @callers;
+            my $i = 1;
+            push @callers, [caller $i++] while caller $i;
+            return [_::callstack 1], \@callers;
+        }->();
+    }->();
+}

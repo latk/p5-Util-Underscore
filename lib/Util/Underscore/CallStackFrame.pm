@@ -7,7 +7,7 @@ use Carp ();
 
 sub of {
     my ($class, $level) = @_;
-    
+
     package DB;
     my @caller = CORE::caller($level + 1);
     return undef if not @caller;
@@ -32,26 +32,28 @@ sub wantarray { shift()->[5] }
 
 sub is_eval {
     my ($self) = @_;
-    return ($self->[3] eq '(eval)') && (bless [$self->[6], $self->[7]] => 'Util::Underscore::CallStackFrame::Eval');
+    if ($self->[3] eq '(eval)') {
+        my $accessor_object = [ @{ $self }[6, 7] ];
+        bless $accessor_object => 'Util::Underscore::CallStackFrame::_Eval';
+        return $accessor_object;
+    }
+    else {
+        return !!0;
+    }
 }
 
 sub is_require { shift()->[7] }
 
-# 8
 sub hints { shift()->[8] }
 
-# 9
 sub bitmask { shift()->[9] }
 
-# 10
 sub hinthash { shift()->[10] }
 
-package Util::Underscore::CallStackFrame::Eval;
+package Util::Underscore::CallStackFrame::_Eval;
 
-# 0
 sub source { shift()->[0] }
 
-# 1
-sub  is_require { shift()->[1] }
+sub is_require { shift()->[1] }
 
 1;

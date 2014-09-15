@@ -430,7 +430,8 @@ sub caller(;$) {
 sub callstack(;$) {
     my $level = @_ ? shift() + 1 : 1;
     my @callers;
-    while (my $caller = Util::Underscore::CallStackFrame->of($level + @callers)) {
+    while (my $caller = Util::Underscore::CallStackFrame->of($level + @callers))
+    {
         push @callers, $caller;
     }
     return @callers;

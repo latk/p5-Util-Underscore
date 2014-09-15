@@ -88,7 +88,7 @@ subtest 'is_eval, is_require' => sub {
     my $eval_block = sub {
         eval { $class->of(0) };
     };
-    my $code = q{ $class->of(0) };
+    my $code = q{ $class->of(0); };
     my $eval_string = sub { eval $code };  ## no critic (ProhibitStringyEval
 
     ok not($sub->()->is_eval), "ordinary frame not is_eval";

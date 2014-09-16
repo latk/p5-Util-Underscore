@@ -5,3 +5,7 @@ color = 1
 allow = if for
 
 [-ValuesAndExpressions::ProhibitInterpolationOfLiterals]
+
+; we use Pod::Weaver, so there is little use for doc formatting requirements
+[-Documentation::RequirePodAtEnd]
+[-Documentation::RequirePodSections]

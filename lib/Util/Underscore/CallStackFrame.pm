@@ -118,7 +118,7 @@ There are a couple of special values:
 *   The last part of the fully qualified name is C<__ANON__> when the sub never had a name, i.e. is an anonymous subroutine.
 *   The whole name is C<(eval)> when this frame was generated from the C<eval> builtin, rather than from an ordinary function call.
     Instead of matching against this name, one can use the C<is_eval> accessor below,
-*   The whole name is C<(unknown) when a subroutine was named, but the typeglob where the subroutine was stored was deleted.
+*   The whole name is C<(unknown)> when a subroutine was named, but the typeglob where the subroutine was stored was deleted.
     I have never encountered this behaviour.
 
 B<return>:

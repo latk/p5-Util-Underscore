@@ -96,7 +96,7 @@ subtest 'is_eval, is_require' => sub {
     ok $eval_string->()->is_eval(), "string-eval is_eval";
 
     is $eval_block->()->is_eval->source, undef, "block-eval has no source";
-    is $eval_string->()->is_eval->source, $code,
+    like $eval_string->()->is_eval->source, qr/\A \Q$code\E (?:\n[;])? \z/smx,
         "string-eval has correct source";
 
     ok not($eval_block->()->is_eval->is_require),

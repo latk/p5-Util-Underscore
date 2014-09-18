@@ -7,12 +7,15 @@ use Test::More tests => 6;
 use Util::Underscore;
 
 subtest 'identity tests' => sub {
-    plan tests => 3;
+    plan tests => 5;
 
     ok \&_::is_open == \&Scalar::Util::openhandle, "_::is_open";
 
     is \&_::pp, \&Data::Dump::pp, "_::pp";
     is \&_::dd, \&Data::Dump::dd, "_::dd";
+    
+    is \&_::process_run,   \&IPC::Run::run,   "_::process_run";
+    is \&_::process_start, \&IPC::Run::start, "_::process_start";
 };
 
 sub foo { die "unimplemented" }

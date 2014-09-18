@@ -19,6 +19,7 @@ use List::Util 1.35      ();
 use POSIX ();
 use Scalar::Util 1.36 ();
 use Try::Tiny 0.03    ();
+use IPC::Run 0.92 ();
 
 =pod
 
@@ -204,7 +205,9 @@ C<Dir>,
 C<File>,
 C<is_open>,
 C<pp>,
-C<prototype>
+C<process_run>,
+C<process_start>,
+C<prototype>,
 
 =end :list
 
@@ -437,6 +440,61 @@ sub callstack(;$) {
     }
     return @callers;
 }
+
+=pod
+
+For invoking external commands, Perl offers the C<sytem> command, various modes for C<open>, and the backtick operator (C<qx//>).
+However, these modes encourage interpolating variables directly into a string, which opens up shell injection issues.
+In fact, C<open> and C<system> can't avoid shell injection when piping or redirection is involved.
+The L<IPC::Run|IPC::Run> module avoids this by offering a flexible interface for launching and controlling external processes.
+
+=begin :list
+
+= C<$success = _::process_run COMMAND_SPEC>
+
+Spawns the specified command(s), and blocks until completion.
+
+B<COMMAND_SPEC>:
+An IPC::Run harness specification.
+
+B<returns>:
+A boolean indicating whether all spawned processes completed without errors (all sub-processes have exit code zero).
+This is inverse to Perl's built in C<system> function!
+
+Example:
+
+    my $data = "stuff you want to display with a pager.";
+    
+    # The contents of $data are entered via STDIN
+    _::process_run ['less', '-R'], \$data
+        or die "Couldn't run less: $?";
+
+    # To do that same thing using builtin functions, we'd have to do:
+    my $less_pid = open my $less_fh, '|-', 'less', '-R' or die "Couldn't start less: $!";
+    print $less_fh $data;
+    close $less_fh or die "Couldn't close pipe to less: $!";
+    waitpid $less_pid, 0;
+
+= C<$process = _::process_start COMMAND_SPEC>
+
+Spawns the specified command(s).
+
+B<COMMAND_SPEC>:
+An IPC::Run harness specification.
+
+B<returns>:
+A IPC::Run object that represents the launched process(es).
+To await completion, call C<< $process->finish >>.
+
+=end :list
+
+=cut
+
+$_ASSIGN_ALIASES->(
+    'IPC::Run',
+    process_run     => 'run',
+    process_start   => 'start',
+);
 
 =head1 RATIONALE
 

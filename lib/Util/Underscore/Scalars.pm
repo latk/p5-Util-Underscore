@@ -1,8 +1,6 @@
 package Util::Underscore::Scalars;
 
 #ABSTRACT: Functions for introspecting and manipulating scalars
-#CONTRIBUTOR: Lukas Atkinson (cpan: AMON) <amon@cpan.org>
-#CONTRIBUTOR: Olivier Mengué (cpan: DOLMEN) <dolmen@cpan.org>
 
 use strict;
 use warnings;

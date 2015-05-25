@@ -1,8 +1,6 @@
 package Util::Underscore;
 
 #ABSTRACT: Common helper functions without having to import them
-#CONTRIBUTOR: Lukas Atkinson (cpan: AMON) <amon@cpan.org>
-#CONTRIBUTOR: Olivier Mengué (cpan: DOLMEN) <dolmen@cpan.org>
 
 use strict;
 use warnings;

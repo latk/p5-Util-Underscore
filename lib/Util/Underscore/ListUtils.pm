@@ -1,8 +1,6 @@
 package Util::Underscore::ListUtils;
 
 #ABSTRACT: Interface to List::Util and List::MoreUtils
-#CONTRIBUTOR: Lukas Atkinson (cpan: AMON) <amon@cpan.org>
-#CONTRIBUTOR: Olivier Mengué (cpan: DOLMEN) <dolmen@cpan.org>
 
 use strict;
 use warnings;

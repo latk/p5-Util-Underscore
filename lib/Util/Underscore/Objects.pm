@@ -1,8 +1,6 @@
 package Util::Underscore::Objects;
 
 #ABSTRACT: Functions for introspecting and manipulating objects and classes
-#CONTRIBUTOR: Lukas Atkinson (cpan: AMON) <amon@cpan.org>
-#CONTRIBUTOR: Olivier Mengué (cpan: DOLMEN) <dolmen@cpan.org>
 
 use strict;
 use warnings;

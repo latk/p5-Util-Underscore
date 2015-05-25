@@ -5,7 +5,7 @@ package Util::Underscore;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('v1.2.1');
+use version 0.77; our $VERSION = qv('v1.3.0');
 use overload ();
 
 use Carp ();
@@ -198,6 +198,8 @@ C<try>
 
 see below
 
+C<caller>,
+C<callstack>,
 C<dd>,
 C<Dir>,
 C<File>,
@@ -205,7 +207,7 @@ C<is_open>,
 C<pp>,
 C<process_run>,
 C<process_start>,
-C<prototype>,
+C<prototype>
 
 =end :list
 

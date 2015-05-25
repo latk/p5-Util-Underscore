@@ -1,3 +1,17 @@
+v1.3.0        2015-05-25
+
+    [New Functionality]
+
+    - Scalars: chomp, index,
+
+    - Lists: min_by, max_by uniq_by, classify
+
+    - Miscellaneous Functions: caller, callstack, process_start, process_run
+
+    [Other Changes]
+
+    - You can now use Util::Underscore more freely since it uses the same license as Perl
+
 v1.2.1        2014-07-30
 
     [Bugfixes]

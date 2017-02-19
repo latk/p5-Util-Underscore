@@ -151,6 +151,10 @@ but also with subroutine parameters:
 
 This function is an alias (heh) for the functionality in L<Data::Alias|Data::Alias>.
 
+B<Only available if Data::Alias is already installed.>
+Since Data::Alias has problems with some perl versions,
+it is not a required dependency.
+
 B<$alias>:
 an additional name for the C<$orig> scalar.
 
@@ -314,8 +318,10 @@ sub is_tainted (_) {
     goto &Scalar::Util::tainted;
 }
 
-## no critic (ProtectPrivateVars)
-$Util::Underscore::_ASSIGN_ALIASES->('Data::Alias', alias => 'alias');
+if (eval q{use Data::Alias 1.18 (); 1}) {  ## no critic (ProhibitStringyEval)
+    ## no critic (ProtectPrivateVars)
+    $Util::Underscore::_ASSIGN_ALIASES->('Data::Alias', alias => 'alias');
+}
 
 sub is_plain(_) {
     defined $_[0]

@@ -1,3 +1,9 @@
+    [Changed Functionality]
+
+    - "_::alias" is now only provided if Data::Alias is already installed.
+    Technically, this is not a backwards-compatible change but it will not
+    break existing installations.
+
 v1.3.0        2015-05-25
 
     [New Functionality]

@@ -111,6 +111,17 @@ subtest '_::is_tainted' => sub {
 };
 
 subtest '_::alias' => sub {
+    ## no critic (ProhibitStringyEval)
+    if (not eval q{ require Data::Alias; 1 }) {
+        plan skip_all => q(Data::Alias not installed);
+    }
+
+    # In case Data::Alias doesn't exist, the below calls to _::alias will fail
+    # to compile. Therefore, optionally inject this stand-in.
+    BEGIN {
+        *_::alias = sub { ... } if not *_::alias{CODE};
+    }
+
     plan tests => 4;
 
     my $orig = 42;

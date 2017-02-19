@@ -10,7 +10,6 @@ use overload ();
 
 use Carp ();
 use Const::Fast 0.011    ();
-use Data::Alias 1.18     ();
 use Data::Dump 1.10      ();
 use List::MoreUtils 0.07 ();
 use List::Util 1.35      ();
@@ -91,7 +90,7 @@ The function reference is split into separate topics which each have their own d
 
 see L<Util::Underscore::Scalars|Util::Underscore::Scalars>
 
-C<alias>,
+C<alias>(*),
 C<const>,
 C<is_dual>,
 C<is_identifier>,
@@ -105,6 +104,8 @@ C<is_vstring>,
 C<new_dual>,
 C<chomp>,
 C<index>
+
+(*) if available
 
 = Numbers
 

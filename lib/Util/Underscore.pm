@@ -25,9 +25,8 @@ use IPC::Run 0.92 ();
 =head1 SYNOPSIS
 
     use Util::Underscore;
-    
+
     _::croak "$foo must do Some::Role" if not _::does($foo, 'Some::Role');
-    
 
 =head1 DESCRIPTION
 
@@ -105,7 +104,7 @@ C<new_dual>,
 C<chomp>,
 C<index>
 
-(*) if available
+(*) if L<Data::Alias|Data::Alias> is installed.
 
 = Numbers
 
@@ -245,10 +244,10 @@ The functions C<_::carp>, C<_::cluck>, C<_::croak>, and C<_::confess> from the C
 They all take a list of strings as argument.
 How do they differ from each other?
 
-    Stack Trace || Fatal    | Warning
-    ------------##====================
-        No      || croak    | carp
-        Yes     || confess  | cluck
+    Fatal   Warning
+    ------- ------- ---------------------
+    croak   carp    from call location
+    confess cluck   with full stack trace
 
 How do they differ from Perl's builtin C<die> and C<warn>?
 The error messages of C<die> and C<warn> are located on the line where the exception is raised.
@@ -408,8 +407,8 @@ If ommited, uses C<1>.
 B<returns>:
 A list of C<Util::Underscore::CallStackFrame> objects.
 
-=C<$stack_frame = _::caller>
-=C<$stack_frame = _::caller $level>
+= C<$stack_frame = _::caller>
+= C<$stack_frame = _::caller $level>
 
 Assembles an object representing a specific call stack frame.
 
@@ -444,7 +443,7 @@ sub callstack(;$) {
 
 =pod
 
-For invoking external commands, Perl offers the C<sytem> command, various modes for C<open>, and the backtick operator (C<qx//>).
+For invoking external commands, Perl offers the C<system> command, various modes for C<open>, and the backtick operator (C<qx//>).
 However, these modes encourage interpolating variables directly into a string, which opens up shell injection issues.
 In fact, C<open> and C<system> can't avoid shell injection when piping or redirection is involved.
 The L<IPC::Run|IPC::Run> module avoids this by offering a flexible interface for launching and controlling external processes.
@@ -465,7 +464,7 @@ This is inverse to Perl's built in C<system> function!
 Example:
 
     my $data = "stuff you want to display with a pager.";
-    
+
     # The contents of $data are entered via STDIN
     _::process_run ['less', '-R'], \$data
         or die "Couldn't run less: $?";

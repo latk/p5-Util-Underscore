@@ -4,7 +4,7 @@ Util::Underscore - Common helper functions without having to import them
 
 # VERSION
 
-version v1.3.0
+version v1.4.0
 
 # SYNOPSIS
 
@@ -341,7 +341,7 @@ Olivier Mengué (cpan: DOLMEN) <dolmen@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Lukas Atkinson.
+This software is copyright (c) 2017 by Lukas Atkinson.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

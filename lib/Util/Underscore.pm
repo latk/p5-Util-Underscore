@@ -5,7 +5,7 @@ package Util::Underscore;
 use strict;
 use warnings;
 
-use version 0.77; our $VERSION = qv('v1.4.0');
+use version 0.77; our $VERSION = qv('v1.4.1');
 use overload ();
 
 use Carp ();

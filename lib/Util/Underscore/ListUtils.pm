@@ -176,8 +176,6 @@ wrapper for C<List::MoreUtils::uniq>
 Discards duplicate values, using a key function to determine equality.
 This can e.g. be used to deduplicate a set of objects, using the result of some method call to determine whether they're equivalent.
 
-This function can only be used in list context.
-
 B<{ KEY }>:
 The function to produce an equality key.
 When called, the current element is passed in via the C<$_> variable.
@@ -194,13 +192,15 @@ In scalar context, returns the number of unique elements in the list.
 
 sub uniq_by (&@) {
     my $key_func = shift;
-    return if not @_;
+
     if (not defined wantarray) {
         Carp::carp "Useless use of _::uniq_by in void context";
         return;
     }
-    if (@_ == 1) {
-        return (wantarray) ? @_ : 1;
+
+    if (@_ <= 1) {
+        return @_ if wantarray;
+        return 0+@_;
     }
 
     # caller context is propagated to grep, so this does the right thing.

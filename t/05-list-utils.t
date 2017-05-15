@@ -5,6 +5,7 @@ use warnings;
 
 use Test::More tests => 29;
 use Test::Exception;
+use Test::Warn;
 
 use Util::Underscore;
 
@@ -133,22 +134,38 @@ subtest 'min_str_by' => sub {
 };
 
 subtest 'uniq_by' => sub {
-    plan tests => 5;
+    plan tests => 8;
 
     my $count = 0;
     is_deeply [ _::uniq_by { $count++; length } qw/a b foo c bar baz/ ],
         [qw/a foo/], "correct return value";
     is $count, 6, "key function invoked the correct number of times";
+
     lives_and {
         is_deeply [ _::uniq_by { die "never invoked" } () ], [];
     }
     "handles empty list correctly";
+
     lives_and {
         is_deeply [ _::uniq_by { die "never invoked" } (42) ], [42];
     }
     "short-circuits on single element";
+
     is scalar(_::uniq_by { length } qw/a b foo c bar xy/), 3,
         "correct behavior in scalar context";
+
+    is scalar(_::uniq_by { length } qw/a/), 1,
+        "correct behavior in scalar context for single element";
+
+    is scalar(_::uniq_by { length } ()), 0,
+        "correct behavior in scalar context for empty input";
+
+    warning_is {
+        _::uniq_by { die "never invoked" } 1, 2, 3;
+        undef;
+    }
+    { carped => 'Useless use of _::uniq_by in void context' },
+    "warns when used in void context";
 };
 
 subtest 'classify' => sub {

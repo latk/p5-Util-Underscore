@@ -63,14 +63,17 @@ subtest 'max_by' => sub {
         plan tests => 5;
 
         is scalar(_::max_by { $_ } 2, 3, 1), 3, "finds maximum number";
+
         my $count = 0;
-        is scalar(_::max_by { $count++; length } qw/a ccc bb dd/), 'ccc',
-            "finds maximum string";
-        is $count, 4, "executed the expected number of times";
+        is scalar(_::max_by { $count++; length } qw/a ccc bb aaaa dd xxxx/),
+            'aaaa', "finds maximum string";
+        is $count, 6, "executed the expected number of times";
+
         lives_and {
             is scalar(_::max_by { die "never called" } ()), undef;
         }
         "returns undef when list is empty";
+
         lives_and {
             is scalar(_::max_by { die "never called" } (4)), 4;
         }
@@ -80,16 +83,19 @@ subtest 'max_by' => sub {
     subtest 'list context' => sub {
         plan tests => 5;
 
-        is_deeply [ _::max_by { $_ } 3, 1, 3, 2 ], [ 3, 3 ],
+        is_deeply [ _::max_by { $_ } 2, 3, 1, 3, 2 ], [ 3, 3 ],
             "finds maximum numbers";
+
         my $count = 0;
-        is_deeply [ _::max_by { $count++; length } qw/aaa bb ccc d/ ],
+        is_deeply [ _::max_by { $count++; length } qw/a aaa bb ccc d/ ],
             [qw/aaa ccc/], "finds maximum strings";
-        is $count, 4, "executed the expected number of times";
+        is $count, 5, "executed the expected number of times";
+
         lives_and {
             is_deeply [ _::max_by { die "never executed" } () ], [];
         }
         "returns empty list when input list is empty";
+
         lives_and {
             is_deeply [ _::max_by { die "never executed" } (4) ], [4];
         }

@@ -169,7 +169,7 @@ subtest 'uniq_by' => sub {
 };
 
 subtest 'classify' => sub {
-    plan tests => 4;
+    plan tests => 5;
 
     my $count = 0;
     is_deeply
@@ -177,12 +177,21 @@ subtest 'classify' => sub {
         +{ 1 => [qw/a b c/], 3 => [qw/foo bar baz/] },
         "correct return value in list context";
     is $count, 6, "key function invoked correct number of times";
+
     is_deeply
         scalar(_::classify { length } qw/a b foo c bar baz/),
         +{ 1 => [qw/a b c/], 3 => [qw/foo bar baz/] },
         "correct return value in scalar context";
+
     lives_and {
         is_deeply + { _::classify { die "never invoked" } () }, +{};
     }
     "handles empty list correctly";
+
+    warning_is {
+        _::classify { die "never invoked" } 1, 2, 3;
+        undef;
+    }
+    { carped => 'Useless use of _::classify in void context' },
+    "warns when used in void context";
 };

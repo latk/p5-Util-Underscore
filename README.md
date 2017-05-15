@@ -4,7 +4,7 @@ Util::Underscore - Common helper functions without having to import them
 
 # VERSION
 
-version v1.4.1
+version v1.4.2
 
 # SYNOPSIS
 
